@@ -1,0 +1,7 @@
+---
+- name: Hardening systems on the network 
+  hosts: testServer
+  # become: no
+
+  roles:
+  - filesystem

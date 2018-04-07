@@ -1,0 +1,1 @@
+install jffs2 /bin/true

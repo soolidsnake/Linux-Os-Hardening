@@ -1,0 +1,48 @@
+# We can dispatch this file into multiple files inside the directory 01.disable.unused.filesystems if we want.
+---
+- name: Verify that the module for the filesystem cramfs is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module cramfs
+    template: src=CIS.cramfs.conf.j2 dest=/etc/modprobe.d/CIS.cramfs.conf mode=0644 owner=root
+
+  - name: Disable the module cramfs
+    modprobe: name=cramfs state=absent
+  
+  become: yes
+  when: '"cramfs" in result.stdout'
+
+
+
+- name: Verify that the module for the filesystem freevxfs is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module freevxfs
+    template: src=CIS.freevxfs.conf.j2 dest=/etc/modprobe.d/CIS.freevxfs.conf mode=0644 owner=root
+
+  - name: Disable the module freevxfs
+    modprobe: name=freevxfs state=absent
+  
+  become: yes
+  when: '"freevxfs" in result.stdout'
+
+
+
+- name: Verify that the module for the filesystem jffs2 is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module jffs2
+    template: src=CIS.jffs2.conf.j2 dest=/etc/modprobe.d/CIS.jffs2.conf mode=0644 owner=root
+
+  - name: Disable the module jffs2
+    modprobe: name=jffs2 state=absent
+  
+  become: yes
+  when: '"jffs2" in result.stdout'
+
