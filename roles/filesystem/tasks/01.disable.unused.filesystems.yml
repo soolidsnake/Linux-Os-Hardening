@@ -3,10 +3,12 @@
 - name: Verify that the module for the filesystem cramfs is not loaded
   shell: lsmod
   register: result
+  tags: [print_action]
 
 - block:
   - name: Disable the module cramfs
     template: src=CIS.cramfs.conf.j2 dest=/etc/modprobe.d/CIS.cramfs.conf mode=0644 owner=root
+    tags: [print_action]
 
   - name: Disable the module cramfs
     modprobe: name=cramfs state=absent
@@ -46,3 +48,84 @@
   become: yes
   when: '"jffs2" in result.stdout'
 
+
+
+- name: Verify that the module for the filesystem hfs is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module hfs
+    template: src=CIS.hfs.conf.j2 dest=/etc/modprobe.d/CIS.hfs.conf mode=0644 owner=root
+
+  - name: Disable the module hfs
+    modprobe: name=hfs state=absent
+  
+  become: yes
+  when: '"hfs" in result.stdout'
+
+
+
+- name: Verify that the module for the filesystem hfsplus is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module hfsplus
+    template: src=CIS.hfsplus.conf.j2 dest=/etc/modprobe.d/CIS.hfsplus.conf mode=0644 owner=root
+
+  - name: Disable the module hfsplus
+    modprobe: name=hfsplus state=absent
+  
+  become: yes
+  when: '"hfsplus" in result.stdout'
+
+
+  
+- name: Verify that the module for the filesystem squashfs is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module squashfs
+    template: src=CIS.squashfs.conf.j2 dest=/etc/modprobe.d/CIS.squashfs.conf mode=0644 owner=root
+
+  - name: Disable the module squashfs
+    modprobe: name=squashfs state=absent
+  
+  become: yes
+  when: '"squashfs" in result.stdout'
+
+
+
+- name: Verify that the module for the filesystem udf is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module udf
+    template: src=CIS.udf.conf.j2 dest=/etc/modprobe.d/CIS.udf.conf mode=0644 owner=root
+
+  - name: Disable the module udf
+    modprobe: name=udf state=absent
+  
+  become: yes
+  tags: [harden_level2]
+  when: '"udf" in result.stdout'
+
+ 
+
+- name: Verify that the module for the filesystem vfat is not loaded
+  shell: lsmod
+  register: result
+
+- block:
+  - name: Disable the module vfat
+    template: src=CIS.vfat.conf.j2 dest=/etc/modprobe.d/CIS.vfat.conf mode=0644 owner=root
+
+  - name: Disable the module vfat
+    modprobe: name=vfat state=absent
+  
+  become: yes
+  tags: [harden_server_level2, harden_workstation_level2]
+  when: '"vfat" in result.stdout'
