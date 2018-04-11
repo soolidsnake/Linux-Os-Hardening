@@ -1,0 +1,14 @@
+---
+- name: Verify that a separate partition exists for /var
+  set_fact:
+    var_partition: "{{item}}"
+  with_items: "{{ansible_mounts}}"
+  when: "item.mount=='/var'"
+  no_log: yes
+
+- name: Tell the user that this partition should be hardend manually
+  debug: msg="It is too dangerous to create and mount the /var partition automatically from here,
+              You should manually log into that machine and do the thing from single user mode. 
+              A script will be generated that will let you create and mount /var/tmp partition properly and manually."
+
+  when: var_partition is not defined

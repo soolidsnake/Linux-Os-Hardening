@@ -1,0 +1,27 @@
+# Not tested yet
+---
+- name: Verify that a separate partition exists for /home
+  set_fact:
+    home_partition: "{{item}}"
+  with_items: "{{ansible_mounts}}"
+  when: "item.mount=='/home'"
+  no_log: yes
+
+
+- name: Tell the user that this partition should be hardenend manually
+  debug: msg="It is too dangerous to create and mount the /home partition automatically from here,
+    You should manually log into that machine and perform operation from single user mode. 
+    A script will be generated that will let you create and mount /var/tmp partition properly and manually."
+
+  when: home_partition is not defined
+
+
+- name: Remount the /home partition with the proper options
+  mount: 
+    path: /home
+    src: "{{home_partition.device}}"
+    fstype: "{{home_partition.fstype}}"
+    opts: rw,nodev,relatime
+    state: mounted
+  when: home_partition is defined
+  tags: [print_action]

@@ -3,3 +3,6 @@
 - include: 02.harden.tmp.partition.yml
 - include: 03.harden.var.partition.yml
 - include: 04.harden.var_tmp.partition.yml
+- include: 05.harden.var_log.partition.yml
+- include: 06.harden.var_log_audit.partition.yml
+- include: 07.harden.home.partition.yml
