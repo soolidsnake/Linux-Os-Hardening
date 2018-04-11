@@ -1,0 +1,70 @@
+---
+- name: Verify that a separate partition exists for /var/tmp
+  set_fact:
+    var_tmp_partition: "{{item}}"
+  with_items: "{{ansible_mounts}}"
+  when: "item.mount=='/var/tmp'"
+  no_log: yes
+
+
+# Create a hardened /var/tmp partition
+- block: 
+  - name: Create an image file for the /var/tmp partition (This may take a while)
+    shell: /bin/dd if=/dev/zero of=/var_tmp_partition.bin bs=512 count=2097152
+
+  - name: Create an ext4 filesystem on the new created /var/tmp partition
+    filesystem: 
+      fstype: ext4
+      dev: /var_tmp_partition.bin
+
+  - name: Change the image file permissions
+    file: dest=/var_tmp_partition.bin mode=660
+
+  - name: Mount the new created tmp partition
+    mount: 
+      path: /var/tmp
+      src: /var_tmp_partition.bin
+      fstype: ext4
+      opts: rw,nosuid,noexec,nodev,relatime
+      state: mounted
+
+  - name: Changing the /var/tmp folder permissions
+    file: dest=/tmp mode=1777
+
+  when: var_tmp_partition is not defined
+  become: yes
+  tags: [harden_server_level2, harden_workstation_level2]
+
+
+# Harden the /var/tmp partition if it already exists
+- block:
+  - name: Find the device of the /var/tmp partition
+    shell: losetup --list --noheadings -O BACK-FILE "{{var_tmp_partition.device}}"
+    register: losetup_result
+    when: "'/dev/loop' in var_tmp_partition.device"
+    tags: [print_action]
+
+  - name: Find the device of the /var/tmp partition
+    set_fact:
+      var_tmp_device: "{{losetup_result.stdout}}"
+    when: "'/dev/loop' in var_tmp_partition.device"
+
+  - name: Find the device of the /var/tmp partition
+    set_fact:
+      tmp_device: "{{var_tmp_partition.device}}"
+    when: "'/dev/loop' not in var_tmp_partition.device"
+
+  - name: Remount the tmp partition with the proper options
+    mount: 
+      path: /var/tmp
+      src: "{{var_tmp_device}}"
+      fstype: ext4
+      opts: rw,nosuid,noexec,nodev,relatime
+      state: mounted
+    tags: [print_action]
+
+  when: var_tmp_partition is defined and 
+        ("nosuid" not in var_tmp_partition.options 
+        or "nodev" not in var_tmp_partition.options
+        or "noexec" not in var_tmp_partition.options)
+  become: yes
