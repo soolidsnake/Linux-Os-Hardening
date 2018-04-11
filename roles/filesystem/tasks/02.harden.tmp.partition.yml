@@ -71,7 +71,7 @@
     mount: 
       path: /tmp
       src: "{{tmp_device}}"
-      fstype: ext4
+      fstype: "{{tmp_partition.fstype}}"
       opts: rw,nosuid,noexec,nodev,relatime
       state: mounted
     tags: [print_action]
