@@ -110,7 +110,6 @@
     modprobe: name=udf state=absent
   
   become: yes
-  tags: [harden_level2]
   when: '"udf" in result.stdout'
 
  

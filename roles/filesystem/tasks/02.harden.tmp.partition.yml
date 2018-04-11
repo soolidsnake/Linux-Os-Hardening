@@ -1,0 +1,83 @@
+---
+# - name: Verify that a separate partition exists for /tmp
+#   shell: /bin/cat /etc/fstab
+#   register: fstab_result
+  # debug: msg="{{ (ansible_mounts | selectattr('mount','equalto','/tmp') | list).0.mount }}"
+  # set_fact: 
+    # fount_tmp_partition : True
+  # with_items: "{{ansible_mounts}}"
+  # when: "item.mount == '/tmp'"
+  # when: "/tmp not in (ansible_mounts.values() | map(attribute='hostname') | list)"
+  # ignore_errors: yes
+  # no_log: yes
+  # failed_when: false
+
+- name: Verify that a separate partition exists for /tmp
+  set_fact:
+    tmp_partition: "{{item}}"
+  with_items: "{{ansible_mounts}}"
+  when: "item.mount=='/tmp'"
+  no_log: yes
+
+
+# Create a hardened tmp partition
+- block: 
+  - name: Create an image file for the tmp partition (This may take a while)
+    shell: /bin/dd if=/dev/zero of=/tmp_partition.bin bs=512 count=2097152
+
+  - name: Create an ext4 filesystem on the new created tmp partition
+    filesystem: 
+      fstype: ext4
+      dev: /tmp_partition.bin
+
+  - name: Change the image file permissions
+    file: dest=/tmp_partition.bin mode=660
+
+  - name: Mount the new created tmp partition
+    mount: 
+      path: /tmp
+      src: /tmp_partition.bin
+      fstype: ext4
+      opts: rw,nosuid,noexec,nodev,relatime
+      state: mounted
+
+  - name: Changing the tmp folder permissions
+    file: dest=/tmp mode=1777
+
+  when: tmp_partition is not defined
+  become: yes
+  tags: [harden_server_level2, harden_workstation_level2]
+
+
+# Harden the tmp partition if it already exists
+- block:
+  - name: Find the device of the tmp partition
+    shell: losetup --list --noheadings -O BACK-FILE "{{tmp_partition.device}}"
+    register: losetup_result
+    when: "'/dev/loop' in tmp_partition.device"
+    tags: [print_action]
+
+  - name: Find the device of the tmp partition
+    set_fact:
+      tmp_device: "{{losetup_result.stdout}}"
+    when: "'/dev/loop' in tmp_partition.device"
+
+  - name: Find the device of the tmp partition
+    set_fact:
+      tmp_device: "{{tmp_partition.device}}"
+    when: "'/dev/loop' not in tmp_partition.device"
+
+  - name: Remount the tmp partition with the proper options
+    mount: 
+      path: /tmp
+      src: "{{tmp_device}}"
+      fstype: ext4
+      opts: rw,nosuid,noexec,nodev,relatime
+      state: mounted
+    tags: [print_action]
+
+  when: tmp_partition is defined and 
+        ("nosuid" not in tmp_partition.options 
+        or "nodev" not in tmp_partition.options
+        or "noexec" not in tmp_partition.options)
+  become: yes

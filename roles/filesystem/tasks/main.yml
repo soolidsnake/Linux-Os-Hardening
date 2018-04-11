@@ -1,2 +1,3 @@
 ---
 - include: 01.disable.unused.filesystems.yml
+- include: 02.harden.tmp.partition.yml
