@@ -6,3 +6,5 @@
 - include: 05.harden.var_log.partition.yml
 - include: 06.harden.var_log_audit.partition.yml
 - include: 07.harden.home.partition.yml
+- include: 08.harden.dev_shm.partition.yml
+
