@@ -3,20 +3,16 @@
   shell: mount
   register: mount_output
 
-
-- name: Remount the /dev/shm partition with the proper options
-  shell: mount -o remount,rw,nosuid,noexec,nodev /dev/shm
+- name: Remount the /dev/shm partition with the proper options And these options to boot
+  mount: 
+    path: /dev/shm
+    src: /dev/shm
+    fstype: tmpfs
+    opts: rw,nosuid,noexec,nodev,relatime
+    state: mounted
 
   when: mount_output.stdout is not search("/dev/shm.*noexec")
       or mount_output.stdout is not search("/dev/shm.*nodev")
       or mount_output.stdout is not search("/dev/shm.*nosuid")
-      
-  become: yes
 
-- name: Add the proper options to /dev/shm in boot
-  lineinfile:
-    path: /etc/fstab
-    regexp: "/dev/shm"
-    line: "none /dev/shm tmpfs rw,nosuid,noexec,nodev 0 0"
-   
   become: yes
