@@ -4,5 +4,6 @@
   # become: no
 
   roles:
-  # - {role: filesystem, tags: [harden_level2]}
-  - filesystem
+  #- {role: filesystem, tags: [harden_level2]}
+  #- filesystem
+  - sshd

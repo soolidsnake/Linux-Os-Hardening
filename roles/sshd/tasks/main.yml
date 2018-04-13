@@ -1,2 +1,4 @@
 ---
 # tasks file for sshd
+#- include: 01.permissions.sshd_config.yml
+- include: hard.sshd_config.yml
