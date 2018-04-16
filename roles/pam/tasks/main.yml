@@ -1,0 +1,4 @@
+---
+- include: 01.harden.password_creation.yml
+- include: 02.config.lockout_for_failed_password_attempts.yml
+- include: 03.Ensure_password_reuse_is_limited_and_algorithm_is_SHA512.yml

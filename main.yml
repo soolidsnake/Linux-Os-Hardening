@@ -6,4 +6,4 @@
   roles:
   #- {role: filesystem, tags: [harden_level2]}
   #- filesystem
-  - sshd
+  - pam
