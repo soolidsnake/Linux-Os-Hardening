@@ -1,13 +1,13 @@
 ---
+# For Ubuntu
 - block:
   - name: Harden '/boot/grub/grub.cfg' permissions and ownership
     file:
       path: "/boot/grub/grub.cfg"
       owner: "root"
       group: "root"
-      mode: 0400
+      mode: "g-rwx,o-rwx"
     become: yes
-
 
   - name: Protect the bootloader with a password
     debug: msg="It is too dangerous to set a password for the bootloader automatically from here,
@@ -23,3 +23,30 @@
 
   when: ansible_distribution=="Ubuntu"
 
+
+
+# For RedHat and CentOS
+- block:
+  - name: Harden '/boot/grub2/grub.cfg' permissions and ownership
+    file:
+      path: "/boot/grub2/grub.cfg"
+      owner: "root"
+      group: "root"
+      mode: "g-rwx,o-rwx"
+    become: yes
+
+  - name: Protect the bootloader with a password
+    debug: msg="It is too dangerous to set a password for the bootloader automatically from here,
+        You should manually log into that machine and perform the operation. 
+        A script will be generated that will let you protect the bootloader with a password when you log 
+        to the machine."
+
+  - name: Require authentication for single user mode
+    debug: msg="It is too dangerous to set the root user password from here,
+        You should manually log into that machine and perform the operation. 
+        A script will be generated that will let you create the root user password when you log 
+        to the machine."
+
+  # I didn't use ansible_os_family because I'm not sure that this will work on fedora too.
+  when: ansible_distribution=="CentOS" or ansible_distribution=="RedHat"
+  
