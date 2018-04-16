@@ -1,4 +1,5 @@
-# This file is called an inventory file.
+#This file is called an inventory file.
 # This is a group of hosts
 [testServer]
-192.168.226.128 ansible_user=ubuntu ansible_become_pass=ansible
+192.168.6.250 ansible_user=haha 
+192.168.6.138 ansible_user=haha ansible_become_pass=haha
