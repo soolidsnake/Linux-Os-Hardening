@@ -1,0 +1,16 @@
+---
+- name: Find all world writable directories
+  shell: find / -type d \( -perm -0222 -a ! -perm -1000 \)
+
+  become: yes
+  register: find_output  
+
+
+- name: Add sticky bit to all world writable directories
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: "o+t"
+  with_items: "{{find_output.stdout.split('\n')}}"
+  when: "find_output.stdout != ''"
+  become: yes
