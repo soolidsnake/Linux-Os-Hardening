@@ -11,13 +11,11 @@
         file-db:/usr/share/gdm/greeter-dconf-defaults"
       create: yes
 
-  - name:
-    file: 
+  - file: 
       path: /etc/dconf/db/gdm.d/
       state: directory
 
-  - name: 
-    blockinfile:
+  - blockinfile:
       path: "/etc/dconf/db/gdm.d/01-banner-message"
       block: |
         [org/gnome/login-screen]
@@ -25,8 +23,7 @@
         banner-message-text='Authorized uses only. All activity may be monitored and reported.'
       create: yes
 
-  - name:
-    shell: dconf update
+  - shell: dconf update
 
 
   become: yes
