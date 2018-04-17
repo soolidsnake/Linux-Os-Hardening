@@ -1,0 +1,13 @@
+---
+- name: Configure message of the day
+  template: src=motd.j2 dest=/etc/motd mode=0644 owner=root
+  become: yes
+
+- name: Configure local login warning banner
+  template: src=issue.j2 dest=/etc/issue mode=0644 owner=root
+  become: yes
+
+- name: Configure remote login warning banner
+  template: src=issue.net.j2 dest=/etc/issue.net mode=0644 owner=root
+  become: yes
+
