@@ -1,0 +1,4 @@
+---
+# vars file for system_maintenance
+ansible_log_path: ~/ansible
+log_path: "{{ansible_log_path}}/system_maintenance/{{inventory_hostname}}"

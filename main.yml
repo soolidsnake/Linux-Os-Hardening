@@ -6,4 +6,5 @@
   roles:
   #- {role: filesystem, tags: [harden_level2]}
   #- filesystem
-  - pam
+  #- pam
+  - system_maintenance

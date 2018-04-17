@@ -1,0 +1,3 @@
+---
+# tasks file for system_maintenance
+- include: 01.system_file_permissions.yml
