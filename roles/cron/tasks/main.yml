@@ -1,0 +1,3 @@
+---
+# tasks file for cron
+- include: 01.harden.cron_config.yml

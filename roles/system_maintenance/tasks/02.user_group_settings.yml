@@ -1,1 +1,102 @@
 ---
+# add 6.1.1 Audit system file permissions (Not Scored)
+- block:
+  - name: Ensure permissions on /etc/passwd are configured 
+    file: path="/etc/passwd" owner=root group=root mode=644
+
+
+  - name: Ensure permissions on /etc/shadow are configured 
+    file: path="/etc/shadow" owner=root group=shadow mode=640
+
+
+  - name: Ensure permissions on /etc/group are configured
+    file: path="/etc/group" owner=root group=root mode=644
+
+
+  - name: Ensure permissions on /etc/gshadow are configured
+    file: path="/etc/gshadow" owner=root group=shadow mode=640
+
+
+  - name: Ensure permissions on /etc/passwd- are configured 
+    file: path="/etc/passwd-" owner=root group=root mode=600
+
+
+  - name: Ensure permissions on /etc/shadow- are configured 
+    file: path="/etc/shadow-" owner=root group=shadow mode=600
+
+
+  - name: Ensure permissions on /etc/group- are configured
+    file: path="/etc/group-" owner=root group=root mode=600
+
+
+  - name: Ensure permissions on /etc/shadow- are configured 
+    file: path="/etc/shadow-" owner=root group=shadow mode=600
+  become: yes
+
+# add the other partitions
+
+- local_action: file path="{{log_path}}" state=directory
+
+
+- block :
+  - name: Ensure no world writable files exist
+    shell: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002
+    register: find_output
+
+  - debug: msg="Please check {{log_path}}/system_maintenance/{{ansible_date_time.date}}_word_writable_files.log
+                and ensure that no world writable files exist"
+  become: yes
+                
+- local_action: copy content={{find_output.stdout}} dest={{log_path}}/{{ansible_date_time.date}}_word_writable_files.log
+  
+
+
+- block :
+  - name: Ensure no unowned files or directories exist
+    shell: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser
+    register: find_output
+
+  - debug: msg="Please check {{log_path}}/system_maintenance/{{ansible_date_time.date}}_unowned_files_directories.log
+                and ensure that no unowned files or directories exist"
+  become: yes              
+
+- local_action: copy content={{find_output.stdout}} dest={{log_path}}/{{ansible_date_time.date}}_unowned_files_directories.log
+  
+
+
+- block :
+  - name: Ensure no ungrouped files or directories exist
+    shell: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nogroup
+    register: find_output
+
+  - debug: msg="Please check {{log_path}}/system_maintenance/{{ansible_date_time.date}}_ungrouped_files_directories.log
+                and ensure that no ungrouped files or directories exist"
+  become: yes
+
+- local_action: copy content={{find_output.stdout}} dest={{log_path}}/{{ansible_date_time.date}}_ungrouped_files_directories.log
+  
+
+
+- block :
+  - name: Audit SUID executables
+    shell: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -4000
+    register: find_output
+
+  - debug: msg="Please check {{log_path}}/system_maintenance/{{ansible_date_time.date}}_suid_executables.log
+                and ensure to keep the minimum SUID executables"
+  become: yes
+
+- local_action: copy content={{find_output.stdout}} dest={{log_path}}/{{ansible_date_time.date}}_suid_executables.log
+  
+
+
+- block :
+  - name: Audit SGID executables
+    shell: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -2000
+    register: find_output
+
+  - debug: msg="Please check {{log_path}}/system_maintenance/{{ansible_date_time.date}}_sgid_executables.log
+                and ensure to keep the minimum SGID executables"
+  become: yes
+
+- local_action: copy content={{find_output.stdout}} dest={{log_path}}/{{ansible_date_time.date}}_sgid_executables.log

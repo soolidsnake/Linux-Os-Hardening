@@ -1,0 +1,80 @@
+---
+- block:
+
+  - name: Check if cron is running
+    shell: systemctl is-enabled cron
+    register: cron_state
+
+  - name: Run cron
+    shell: systemctl enable cron
+    when: cron_state.stdout == "disabled"
+
+  - name: Ensure permissions on /etc/crontab are configured
+    file: path="/etc/crontab" owner=root group=root mode=0600 
+
+
+  - name: Ensure permissions on /etc/cron.hourly are configured
+    file: path="/etc/cron.hourly" owner=root group=root mode=0700 
+
+
+  - name: Ensure permissions on /etc/cron.daily are configured
+    file: path="/etc/cron.daily" owner=root group=root mode=0700 
+
+
+  - name: Ensure permissions on /etc/cron.weekly are configured
+    file: path="/etc/cron.weekly" owner=root group=root mode=0700 
+
+
+  - name: Ensure permissions on /etc/cron.monthly are configured
+    file: path="/etc/cron.monthly" owner=root group=root mode=0700 
+
+
+  - name: Ensure permissions on /etc/cron.d are configured
+    file: path="/etc/cron.d" owner=root group=root mode=0700 
+
+
+  - name: Check that the /etc/cron.allow exists
+    stat:
+      path: /etc/cron.allow
+    register: stat_result
+
+
+  - name: Create the file, if it doesnt exist already
+    file:
+      path: /etc/cron.allow
+      state: touch
+    when: stat_result.stat.exists == False 
+
+
+  - name: Check that the /etc/at.allow exists
+    stat:
+      path: /etc/at.allow
+    register: stat_result
+
+
+  - name: Create the file, if it doesnt exist already
+    file:
+      path: /etc/at.allow
+      state: touch
+    when: stat_result.stat.exists == False 
+
+
+  - name: Ensure permissions on /etc/cron.allow are configured
+    file: path="/etc/cron.allow" owner=root group=root mode=0600
+
+
+  - name: Ensure permissions on /etc/at.allow are configured
+    file: path="/etc/at.allow" owner=root group=root mode=0600  
+
+
+  - name: remove /etc/cron.deny
+    file:
+      state: absent
+      path: "/etc/cron.deny"
+
+
+  - name: remove /etc/at.deny
+    file:
+      state: absent
+      path: "/etc/at.deny"
+  become: yes
