@@ -1,0 +1,19 @@
+# These tasks need to be tested with a good connection
+---
+- name: Update system packages
+  apt: 
+    upgrade: safe
+    update_cache: yes
+
+  become: yes
+  when: ansible_pkg_mgr=='apt'
+
+- name: Update system packages
+  yum: 
+    name: '*'
+    update_cache: yes
+    state: latest
+    # security: yes
+
+  become: yes
+  when: ansible_pkg_mgr=='yum'
