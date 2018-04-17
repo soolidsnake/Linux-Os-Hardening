@@ -1,0 +1,36 @@
+---
+
+# GDM Warning Login Banner
+- block:
+  - name: Configure GDM login warning banner
+    blockinfile: 
+      path: "/etc/dconf/profile/gdm"
+      block: |
+        user-db:user
+        system-db:gdm
+        file-db:/usr/share/gdm/greeter-dconf-defaults"
+      create: yes
+
+  - name:
+    file: 
+      path: /etc/dconf/db/gdm.d/
+      state: directory
+
+  - name: 
+    blockinfile:
+      path: "/etc/dconf/db/gdm.d/01-banner-message"
+      block: |
+        [org/gnome/login-screen]
+        banner-message-enable=true
+        banner-message-text='Authorized uses only. All activity may be monitored and reported.'
+      create: yes
+
+  - name:
+    shell: dconf update
+
+
+  become: yes
+  when: ansible_env.GDMSESSION is defined
+
+
+# We can add banners for other Desktops (Like XFCE, LXDE ...)
