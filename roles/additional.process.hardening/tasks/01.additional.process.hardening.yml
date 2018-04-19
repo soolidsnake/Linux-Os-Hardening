@@ -1,0 +1,69 @@
+---
+- name: Disable core dumps
+  lineinfile: 
+    path: /etc/security/limits.conf
+    regexp: '[ \t]*\*[ \t]+hard[ \t]+core[ \t]+0[ \t]*'
+    line: '* hard core 0'
+
+  become: yes
+
+# This will give 'changed' even if the key 'fs.suid_dumpable' is by default equals to 0.
+# This mean that it will always output 'changed' if the value isn't declared in '/etc/sysctl.conf'.
+- name: Disable core dumps for suid processes
+  sysctl:
+    name: fs.suid_dumpable
+    value: 0
+    state: present
+    sysctl_set: yes
+
+  become: yes
+
+
+- name: Detect if NX support is enabled
+  shell: |
+    dmesg | grep 'NX (Execute Disable) protection: active'
+  register: grep_output
+  failed_when: false
+  changed_when: false
+
+- debug: msg="Install a kernel with PAE support to enable NX (No Execute) to prevent code execution
+      on a per memory page basis."
+  when: grep_output.rc!=0
+
+
+- name: Verify that ASLR is enabled
+  shell: /sbin/sysctl kernel.randomize_va_space
+  register: sysctl_result
+  changed_when: false
+
+- name: Enable ASLR
+  sysctl:
+    name: kernel.randomize_va_space
+    value: 2
+    state: present
+    sysctl_set: yes
+
+  when: sysctl_result.stdout != "kernel.randomize_va_space = 2"
+  become: yes
+
+
+- name: Verify if prelink exists
+  stat: 
+    path: "/usr/sbin/prelink"
+  register: stat_result
+
+
+# If prelink is not installed in the default location, this won't work. I did it this way because
+# when I connect to CentOS using ansible, the 'PATH' variable is truncated, and doesn't contain all 
+# the default paths.
+- name: Disable prelink
+  shell: /usr/sbin/prelink -ua
+  become: yes
+  when: stat_result.stat.exists==true
+
+
+- name: Uninstall prelink
+  package: 
+    name: prelink
+    state: absent
+  become: yes
