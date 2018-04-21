@@ -104,8 +104,23 @@
     - "-a always,exit -F arch=b64 -S clock_settime -k time-change"
     - "-a always,exit -F arch=b32 -S clock_settime -k time-change"
     - "-w /etc/localtime -p wa -k time-change"
-
+  # This might not be the correct ansible_fact to detect the os architecture.
   when: ansible_architecture=="x86_64"
+
+
+- name: Configure auditd to collect events that modify user/group information
+  lineinfile:
+    path: /etc/audit/audit.rules
+    line: "{{item}}"
+    state: present
+
+  become: yes
+  with_items:
+    - "-w /etc/group -p wa -k identity"
+    - "-w /etc/passwd -p wa -k identity"
+    - "-w /etc/gshadow -p wa -k identity"
+    - "-w /etc/shadow -p wa -k identity"
+    - "-w /etc/security/opasswd -p wa -k identity"
 
 
 # - name: Reload auditd service using systemd.
