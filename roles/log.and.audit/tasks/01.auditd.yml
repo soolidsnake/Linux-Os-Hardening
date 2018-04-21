@@ -1,0 +1,115 @@
+---
+- name: Install auditd package on Debian based distros
+  apt:
+    name: auditd
+    state: present
+    update_cache: yes
+
+  become: yes
+  when: ansible_pkg_mgr=='apt'
+
+- name: Install auditd package on RedHat based distros
+  yum: 
+    name: audit
+    state: present
+    update_cache: yes
+
+  become: yes
+  when: ansible_pkg_mgr=='yum'
+
+
+- name: Configure audit log storage size
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: 'max_log_file.+'
+    line: 'max_log_file = {{max_log_file_size}}'
+  become: yes
+
+
+- name: Configure the system to shutdown when audit logs are full
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '\bspace_left_action.+'
+    line: 'space_left_action = email'
+
+  become: yes
+
+- name: Configure the system to shutdown when audit logs are full
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '\baction_mail_acct.+'
+    line: 'action_mail_acct = root'
+
+  become: yes
+
+- name: Configure the system to shutdown when audit logs are full
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '\badmin_space_left_action.+'
+    line: 'admin_space_left_action = halt'
+
+  become: yes
+
+- name: Ensure audit logs are not automatically deleted
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '\bmax_log_file_action.+'
+    line: 'max_log_file_action = keep_logs'
+
+  become: yes
+
+- name: Enable auditd service
+  service:
+    name: auditd
+    state: started
+    enabled: yes
+  become: yes
+
+
+- name: Read /etc/default/grub file content
+  shell: cat /etc/default/grub
+  register: grub_cfg
+
+- name: Enable auditing for processes that start prior to auditd
+  lineinfile: 
+    path: /etc/default/grub
+    regexp: "(GRUB_CMDLINE_LINUX.+)([\"'])"
+    line: '\1 audit=1\2'
+    backrefs: yes
+  become: yes
+  when: grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+
+- name: Update Grub for Debian based distros
+  shell: update-grub
+  become: yes
+  when: ansible_os_family=='Debian'
+
+- name: Update Grub for RedHat based distros
+  shell: grub2-mkconfig -o /boot/grub2/grub.cfg
+  become: yes
+  when: ansible_os_family=='RedHat'
+
+
+
+- name: Configure auditd to collect events that modify date and time information
+  lineinfile:
+    path: /etc/audit/audit.rules
+    line: "{{item}}"
+    state: present
+
+  become: yes
+  with_items:
+    - "-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change"
+    - "-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change"
+    - "-a always,exit -F arch=b64 -S clock_settime -k time-change"
+    - "-a always,exit -F arch=b32 -S clock_settime -k time-change"
+    - "-w /etc/localtime -p wa -k time-change"
+
+  when: ansible_architecture=="x86_64"
+
+
+# - name: Reload auditd service using systemd.
+#   debug: msg="Don't forget to reload auditd"
+
+
+# - debug: msg="{{hello_world}}"
