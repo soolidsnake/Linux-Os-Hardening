@@ -1,0 +1,4 @@
+---
+# vars file for Network_Configuration
+
+deactivate_ipv6: "no"

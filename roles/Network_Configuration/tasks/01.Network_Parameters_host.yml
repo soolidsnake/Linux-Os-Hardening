@@ -1,0 +1,49 @@
+---
+
+- name: Ensure IP forwarding is disabled
+  shell: "sysctl net.ipv4.ip_forward"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+- name: Disabling IP forwarding permanently
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: 'net.ipv4.ip_forward'
+    line: 'net.ipv4.ip_forward = 0'
+  become: yes
+
+- name: Disable IP forwarding
+  shell : "sysctl -w net.ipv4.ip_forward=0 && 
+           sysctl -w net.ipv4.route.flush=1"
+  when: grep_output.stdout == "net.ipv4.ip_forward = 1"
+
+
+
+
+
+# add default
+- name: Ensure packet redirect sending is disabled
+  shell: "sysctl net.ipv4.conf.all.send_redirects"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+- name: Disabling packet redirect sending permanently
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'net.ipv4.conf.all.send_redirects',  line: 'net.ipv4.conf.all.send_redirects = 0' }
+    - { regexp: 'net.ipv4.conf.default.send_redirects',  line: 'net.ipv4.conf.default.send_redirects = 0' }
+  become: yes
+
+- name: Disable packet redirect sending
+  shell : "sysctl -w net.ipv4.conf.all.send_redirects=0 &&
+           sysctl -w net.ipv4.conf.default.send_redirects=0 &&
+           sysctl -w net.ipv4.route.flush=1"
+  when: grep_output.stdout == "net.ipv4.conf.all.send_redirects = 1"
+  become: yes

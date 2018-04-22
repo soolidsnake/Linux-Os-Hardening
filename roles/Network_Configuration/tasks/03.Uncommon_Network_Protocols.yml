@@ -1,0 +1,40 @@
+---
+# create files
+
+- stat: path=/etc/modprobe.d/CIS.conf
+  register: p
+
+- file: path=/etc/modprobe.d/CIS.conf state=touch
+  become: yes
+  when: p.stat.exists == false
+
+- name: Ensure DCCP is disabled
+  lineinfile:
+    path: "/etc/modprobe.d/CIS.conf"
+    regexp: 'install dccp'
+    line: 'install dccp /bin/true'
+  become: yes
+
+
+- name: Ensure SCTP is disabled
+  lineinfile:
+    path: "/etc/modprobe.d/CIS.conf"
+    regexp: 'install sctp'
+    line: 'install sctp /bin/true'
+  become: yes
+
+
+- name: Ensure RDS is disabled
+  lineinfile:
+    path: "/etc/modprobe.d/CIS.conf"
+    regexp: 'install rds'
+    line: 'install rds /bin/true'
+  become: yes
+
+
+- name: Ensure TIPC is disabled
+  lineinfile:
+    path: "/etc/modprobe.d/CIS.conf"
+    regexp: 'install tipc'
+    line: 'install tipc /bin/true'
+  become: yes

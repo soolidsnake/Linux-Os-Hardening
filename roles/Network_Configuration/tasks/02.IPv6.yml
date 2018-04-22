@@ -1,0 +1,70 @@
+---
+
+- name: Ensure IPv6 router advertisements are not accepted
+  shell: "sysctl net.ipv6.conf.all.accept_ra"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+- name: Disabling IPv6 router advertisements permanently
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'net.ipv6.conf.all.accept_ra',  line: 'net.ipv6.conf.all.accept_ra = 0' }
+    - { regexp: 'net.ipv6.conf.default.accept_ra',  line: 'net.ipv6.conf.default.accept_ra = 0' }
+  become: yes
+
+- name: Disable IPv6 router advertisements
+  shell : "sysctl -w net.ipv6.conf.all.accept_ra=0    &&
+           sysctl -w net.ipv6.conf.default.accept_ra=0 &&
+           sysctl -w net.ipv6.route.flush=1"
+  when: grep_output.stdout == 1
+
+
+
+
+
+- name: Ensure IPv6 redirects are not accepted
+  shell: "sysctl net.ipv6.conf.all.accept_redirects"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+- name: Disabling IPv6 redirects permanently
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'net.ipv6.conf.all.accept_redirects',  line: 'net.ipv6.conf.all.accept_redirects = 0' }
+    - { regexp: 'net.ipv6.conf.default.accept_redirects',  line: 'net.ipv6.conf.default.accept_redirects = 0' }
+  become: yes
+
+- name: Disable IPv6 redirects
+  shell : "sysctl -w net.ipv6.conf.all.accept_redirects=0    &&
+           sysctl -w net.ipv6.conf.default.accept_redirects=0=0 &&
+           sysctl -w net.ipv6.route.flush=1"
+  when: grep_output.stdout == 1
+
+
+
+
+
+- name: deactivate IPV6
+  lineinfile:
+    path: "/etc/default/grub"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'GRUB_CMDLINE_LINUX',  line: 'GRUB_CMDLINE_LINUX="ipv6.disable=1"' }
+  become: yes
+  when: deactivate_ipv6 == "yes"
+
+- name: update grub
+  shell: "update-grub"
+  become: yes
+  when: deactivate_ipv6 == "yes"
