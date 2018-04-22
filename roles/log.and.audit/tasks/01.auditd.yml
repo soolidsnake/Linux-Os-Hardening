@@ -90,41 +90,89 @@
   when: ansible_os_family=='RedHat'
 
 
+# 4.1.4 ===============================================================================================================
 
-- name: Configure auditd to collect events that modify date and time information
-  lineinfile:
-    path: /etc/audit/audit.rules
-    line: "{{item}}"
-    state: present
-
+- name: Configure auditd to collect events that modify date and time information on 64bit systems
+  template:
+    src: CIS.log.modify.time.date.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.time.date.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
   become: yes
-  with_items:
-    - "-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change"
-    - "-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change"
-    - "-a always,exit -F arch=b64 -S clock_settime -k time-change"
-    - "-a always,exit -F arch=b32 -S clock_settime -k time-change"
-    - "-w /etc/localtime -p wa -k time-change"
-  # This might not be the correct ansible_fact to detect the os architecture.
   when: ansible_architecture=="x86_64"
 
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect events that modify date and time information on 32bit systems
+  template:
+    src: CIS.log.modify.time.date.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.time.date.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false
+
+# 4.1.5 ===============================================================================================================
 
 - name: Configure auditd to collect events that modify user/group information
-  lineinfile:
-    path: /etc/audit/audit.rules
-    line: "{{item}}"
-    state: present
-
+  template:
+    src: CIS.log.modify.user.group.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.user.group.rules
+    owner: root
+    group: root
+    mode: 0600
   become: yes
-  with_items:
-    - "-w /etc/group -p wa -k identity"
-    - "-w /etc/passwd -p wa -k identity"
-    - "-w /etc/gshadow -p wa -k identity"
-    - "-w /etc/shadow -p wa -k identity"
-    - "-w /etc/security/opasswd -p wa -k identity"
+
+
+# 4.1.6 ===============================================================================================================
+
+- name: Configure auditd to collect events that modify the system's network environment on 64bit Debian based distros
+  template:
+    src: CIS.log.modify.network.debian.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.network.debian.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=='x86_64' and ansible_os_family=="Debian"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect events that modify the system's network environment on 32bit Debian based distros
+  template:
+    src: CIS.log.modify.network.debian.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.network.debian.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false and ansible_os_family=="Debian"
+
+
+- name: Configure auditd to collect events that modify the system's network environment on 64bit RedHat based distros
+  template:
+    src: CIS.log.modify.network.redhat.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.network.redhat.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=='x86_64' and ansible_os_family=="RedHat"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect events that modify the system's network environment on 32bit RedHat based distros
+  template:
+    src: CIS.log.modify.network.redhat.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.network.redhat.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false and ansible_os_family=="RedHat"
 
 
 # - name: Reload auditd service using systemd.
-#   debug: msg="Don't forget to reload auditd"
+#   shell: augenrules
 
 
 # - debug: msg="{{hello_world}}"
