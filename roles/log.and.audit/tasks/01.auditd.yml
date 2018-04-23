@@ -171,6 +171,241 @@
   when: false and ansible_os_family=="RedHat"
 
 
+# 4.1.7 ===============================================================================================================
+
+- name: Configure auditd to collect events that modify the system's Mandatory Access Controls
+  template:
+    src: CIS.log.modify.MAC.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.MAC.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+
+
+# 4.1.8 ===============================================================================================================
+
+- name: Configure auditd to collect login and logout events on Debian based distros
+  template:
+    src: CIS.log.login.logout.debian.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.login.logout.debian.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_os_family=="Debian"
+
+- name: Configure auditd to collect login and logout events on RedHat based distros
+  template:
+    src: CIS.log.login.logout.redhat.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.login.logout.redhat.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_os_family=="RedHat"
+
+
+# 4.1.9 ===============================================================================================================
+
+- name: Configure auditd to collect session initiation information
+  template:
+    src: CIS.log.session.initiation.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.session.initiation.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+
+
+# 4.1.10 ==============================================================================================================
+
+- name: Configure auditd to collect events that modify Discretionary Access Control permission on 64bit systems
+  template:
+    src: CIS.log.modify.DAC.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.DAC.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=="x86_64"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect events that modify Discretionary Access Control permission on 32bit systems
+  template:
+    src: CIS.log.modify.DAC.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.DAC.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false
+
+
+# 4.1.11 ==============================================================================================================
+
+- name: Configure auditd to collect unsuccessful unauthorized file access attempts on 64bit systems
+  template:
+    src: CIS.log.unsuccessful.file.access.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.unsuccessful.file.access.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=="x86_64"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect unsuccessful unauthorized file access attempts on 32bit systems
+  template:
+    src: CIS.log.unsuccessful.file.access.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.unsuccessful.file.access.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false
+
+
+# 4.1.12 ==============================================================================================================
+
+- name: Find SUID commands
+  shell: 'find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk ''{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }'' ' 
+  register: find_result
+  become: yes
+
+- name: Configure auditd to collect the use of privileged commands
+  blockinfile: 
+    path: /etc/audit/rules.d/CIS.log.SUID.commands.rules
+    block: "{{find_result.stdout}}"
+    create: yes
+  become: yes
+
+
+# 4.1.13 ==============================================================================================================
+
+- name: Configure auditd to collect successful file system mounts on 64bit systems
+  template:
+    src: CIS.log.successful.mount.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.successful.mount.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=="x86_64"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect successful file system mounts on 32bit systems
+  template:
+    src: CIS.log.successful.mount.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.successful.mount.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false
+
+
+# 4.1.14 ==============================================================================================================
+
+- name: Configure auditd to collect events that delete files on 64bit systems
+  template:
+    src: CIS.log.file.deletion.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.file.deletion.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=="x86_64"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect events that delete files on 32bit systems
+  template:
+    src: CIS.log.file.deletion.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.file.deletion.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false
+
+
+# 4.1.15 ==============================================================================================================
+
+- name: Configure auditd to collect changes to sudoers files
+  template:
+    src: CIS.log.sudoers.file.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.sudoers.file.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  
+
+# 4.1.16 ==============================================================================================================
+
+- name: Configure auditd to collect changes to /var/log/sudo.log file
+  template:
+    src: CIS.log.modify.sudolog.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modify.sudolog.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+
+
+# 4.1.17 ==============================================================================================================
+
+- name: Configure auditd to collect module loading and unloading on 64bit systems
+  template:
+    src: CIS.log.modules.loading.unloading.64bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modules.loading.unloading.64bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: ansible_architecture=="x86_64"
+
+# We just need to put the right condition for 32bit systems
+- name: Configure auditd to collect module loading and unloading on 32bit systems
+  template:
+    src: CIS.log.modules.loading.unloading.32bit.rules.j2
+    dest: /etc/audit/rules.d/CIS.log.modules.loading.unloading.32bit.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  when: false
+
+
+# 4.1.18 ==============================================================================================================
+
+# To make auditd rules changeable again, we need to remove this file from the host, run the command 'augenrules',
+# (sometimes the service need to be restarted too), and then reboot the system.
+- name: Make auditd rules immutable until system reboot
+  template:
+    src: CIS.make.auditd.configs.immutable.rules.j2
+    dest: /etc/audit/rules.d/CIS.make.auditd.configs.immutable.rules
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+
+# =====================================================================================================================
+
+- name: Generate auditd rules from /etc/audit/rules.d/
+  shell: /sbin/augenrules
+  become: yes
+
+- name: Restart auditd service on Debian based distros
+  service: name=auditd state=restarted 
+  become: yes
+  when: ansible_os_family=="Debian"
+
+- name: Restart auditd service on RedHat based distros
+  command: /sbin/service auditd restart
+  become: yes
+  when: ansible_os_family=="RedHat"
+
 # - name: Reload auditd service using systemd.
 #   shell: augenrules
 

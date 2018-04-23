@@ -1,2 +1,3 @@
 ---
 - include: 01.auditd.yml
+  tags: [harden_server_level2, harden_workstation_level2]
