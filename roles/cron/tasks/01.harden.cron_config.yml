@@ -4,10 +4,36 @@
   - name: Check if cron is running
     shell: systemctl is-enabled cron
     register: cron_state
+    ignore_errors: True
+    when: ansible_os_family=='Debian'
 
-  - name: Run cron
+  - name: Check if cron is running
+    shell: systemctl is-enabled crond
+    register: cron_state
+    ignore_errors: True
+    when: ansible_os_family=='RedHat'
+
+  - debug: msg="{{cron_state.stderr}}"
+
+
+  - name: installing cron on Debian
+    apt: name=cron state=latest
+    when: ansible_os_family=='Debian' and 'FAILED' in cron_state.stderr
+
+
+  - name: installing cron on RedHat
+    yum: name=cronie state=latest
+    when: ansible_os_family=='RedHat' and 'FAILED'in cron_state.stderr
+
+
+  - name: Run cron on Debian
     shell: systemctl enable cron
-    when: cron_state.stdout == "disabled"
+    when: ansible_os_family=='Debian' and (cron_state.stdout == "disabled" or 'FAILED'in cron_state.stderr)
+
+  - name: Run cron on RedHat
+    shell: systemctl enable crond
+    when: ansible_os_family=='RedHat' and (cron_state.stdout == "disabled" or 'FAILED'in cron_state.stderr)
+
 
   - name: Ensure permissions on /etc/crontab are configured
     file: path="/etc/crontab" owner=root group=root mode=0600 

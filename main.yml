@@ -5,8 +5,8 @@
 
   roles:
   #- {role: filesystem, tags: [harden_level2]}
-  #- filesystem
-  #- pam
-  #- system_maintenance
-  #- cron
-  - Network_Configuration
+  #- sshd # redhat && debian
+  - pam
+  #- system_maintenance # redhat && debian
+  #- cron # redhat && debian
+  #- Network_Configuration # redhat && debian

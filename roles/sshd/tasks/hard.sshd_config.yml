@@ -86,8 +86,8 @@
   - name: set ClientAliveInterval == 300 and set ClientAliveCountMax == 4 
     lineinfile:
       path:   "{{sshd_config_path}}"
-      regexp: "{{ item.regexp }}"
-      line:   "{{ item.line }}"
+      regexp: "{{item.regexp}}"
+      line:   "{{item.line}}"
     with_items:
       - { regexp: '^ClientAliveInterval',  line: 'ClientAliveInterval 300' }
       - { regexp: '^ClientAliveCountMax',  line: 'ClientAliveCountMax 4' }

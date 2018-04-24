@@ -7,6 +7,12 @@
 
   - name: Ensure permissions on /etc/shadow are configured 
     file: path="/etc/shadow" owner=root group=shadow mode=640
+    when: ansible_os_family=='Debian'
+
+
+  - name: Ensure permissions on /etc/shadow are configured 
+    file: path="/etc/shadow" owner=root group=root mode=640
+    when: ansible_os_family=='RedHat'
 
 
   - name: Ensure permissions on /etc/group are configured
@@ -15,6 +21,12 @@
 
   - name: Ensure permissions on /etc/gshadow are configured
     file: path="/etc/gshadow" owner=root group=shadow mode=640
+    when: ansible_os_family=='Debian'
+
+
+  - name: Ensure permissions on /etc/gshadow are configured
+    file: path="/etc/gshadow" owner=root group=root mode=640
+    when: ansible_os_family=='RedHat'
 
 
   - name: Ensure permissions on /etc/passwd- are configured 
@@ -23,14 +35,15 @@
 
   - name: Ensure permissions on /etc/shadow- are configured 
     file: path="/etc/shadow-" owner=root group=shadow mode=600
+    when: ansible_os_family=='Debian'
 
+  - name: Ensure permissions on /etc/shadow- are configured 
+    file: path="/etc/shadow-" owner=root group=root mode=600
+    when: ansible_os_family=='RedHat'
 
   - name: Ensure permissions on /etc/group- are configured
     file: path="/etc/group-" owner=root group=root mode=600
 
-
-  - name: Ensure permissions on /etc/shadow- are configured 
-    file: path="/etc/shadow-" owner=root group=shadow mode=600
   become: yes
 
 # add the other partitions

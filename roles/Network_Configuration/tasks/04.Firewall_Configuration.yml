@@ -1,39 +1,46 @@
 ---
 - block: 
-  - name: Ensure iptables is installed
+  - name: Ensure iptables is installed Debian
     apt:
       name: iptables
       update_cache: yes
+    when: ansible_os_family=='Debian'
 
+  - name: Ensure iptables is installed RedHat
+    yum:
+      name: iptables
+      update_cache: yes
+    when: ansible_os_family=='RedHat'
 
 
   # add condition
-  - name: Ensure default deny firewall policy
-    shell : "iptables -P INPUT DROP && 
-             iptables -P OUTPUT DROP &&
-             iptables -P FORWARD DROP"
+#  - name: Ensure default deny firewall policy
+#    shell : "iptables -P INPUT   DROP && 
+#             iptables -P OUTPUT  DROP &&
+#             iptables -P FORWARD DROP"
 
 
 
   - name: Ensure loopback traffic is configured
-    shell : "iptables -A INPUT -i lo -j ACCEPT && 
-             iptables -A OUTPUT -o lo -j ACCEPT &&
-             iptables -A INPUT -s 127.0.0.0/8 -j"
+    shell : "iptables -A INPUT -i lo          -j ACCEPT && 
+             iptables -A OUTPUT -o lo         -j ACCEPT &&
+             iptables -A INPUT -s 127.0.0.0/8 -j DROP"
 
 
 
   - name: Ensure outbound and established connections are configured
-    shell : "iptables -A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT && 
-             iptables -A OUTPUT -p udp -m state --state NEW,ESTABLISHED -j ACCEPT &&
+    shell : "iptables -A OUTPUT -p tcp  -m state --state NEW,ESTABLISHED -j ACCEPT && 
+             iptables -A OUTPUT -p udp  -m state --state NEW,ESTABLISHED -j ACCEPT &&
              iptables -A OUTPUT -p icmp -m state --state NEW,ESTABLISHED -j ACCEPT &&
-             iptables -A INPUT -p tcp -m state --state ESTABLISHED -j ACCEPT &&
-             iptables -A INPUT -p udp -m state --state ESTABLISHED -j ACCEPT &&
-             iptables -A INPUT -p icmp -m state --state ESTABLISHED -j ACCEPT &&"
+             iptables -A INPUT  -p tcp  -m state --state ESTABLISHED     -j ACCEPT &&
+             iptables -A INPUT  -p udp  -m state --state ESTABLISHED     -j ACCEPT &&
+             iptables -A INPUT  -p icmp -m state --state ESTABLISHED     -j ACCEPT"
 
 
   #- name: Ensure firewall rules exist for all open ports
   #  shell : "iptables -A INPUT -p <protocol> --dport <port> -m state --state NEW -j ACCEPT"
 
+  # disable wireless interfaces
 
   become: yes
 
