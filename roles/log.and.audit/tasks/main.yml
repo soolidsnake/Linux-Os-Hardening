@@ -1,3 +1,5 @@
 ---
 - include: 01.auditd.yml
   tags: [harden_server_level2, harden_workstation_level2]
+  
+- include: 02.rsyslog.yml

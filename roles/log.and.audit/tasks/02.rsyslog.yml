@@ -1,0 +1,62 @@
+---
+
+# 4.2.1.1 =============================================================================================================
+
+- name: Enable rsyslog service
+  service:
+    name: rsyslog
+    state: started
+    enabled: yes
+  become: yes
+
+
+# 4.2.1.2 =============================================================================================================
+
+- name: Configure rsyslog logging
+  template:
+    src: CIS.rsyslog.conf.j2
+    dest: /etc/rsyslog.d/CIS.rsyslog.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Apply rsyslog configurations
+  shell: /usr/bin/pkill -HUP rsyslogd
+  become: yes
+
+
+# 4.2.1.3 =============================================================================================================
+
+- name: Configure rsyslog default log files permissions
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regexp: '\$FileCreateMode'
+    line: '\$FileCreateMode 0640'
+  become: yes
+
+- name: Find all .conf files in /etc/rsyslog.d/ directory
+  shell: find /etc/rsyslog.d/ -type f
+  register: find_result
+  changed_when: false
+
+- name: Remove $FileCreateMode from .conf files under /etc/rsyslog.d/
+  lineinfile:
+    path: "{{item}}"
+    regexp: '\$FileCreateMode'
+    state: absent
+
+  with_items: "{{find_result.stdout_lines}}"
+  become: yes
+
+
+# 4.2.1.4 =============================================================================================================
+
+- name: Configure rsyslog to send logs to a remote log host
+  debug: msg="This task should be done manually according to the site policy."
+
+
+# 4.2.1.5 =============================================================================================================
+
+- name: Configure remote rsyslog server
+  debug: msg="This task should be done manually on the remote rsyslog server."
