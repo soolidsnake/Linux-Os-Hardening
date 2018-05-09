@@ -1,0 +1,17 @@
+---
+
+# 4.2.5 ===============================================================================================================
+
+- name: Configure logrotate
+  debug: msg="This task should be done manually to make sure that the log files are rotated
+      according to the site policy."
+
+
+- name: Trying ara_record
+  ara_record:
+    key: "This is a test"
+    value: "This is a value test"
+- name: Trying ara_record
+  ara_record:
+    key: "This is a test"
+    value: "This is a value test2"

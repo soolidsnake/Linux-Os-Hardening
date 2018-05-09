@@ -1,0 +1,19 @@
+---
+
+
+# 4.2.4 ===============================================================================================================
+
+- name: Find all log files with innapropriate permissions
+  shell: find /var/log -type f -perm /037 
+  register: find_output
+  become: yes
+
+# - debug: msg="{{find_output.stdout_lines}}"
+
+- name: Remove innapropriate permissions from log files in /var/log/
+  file:
+    path: "{{item}}"
+    # state: file
+    mode: "g-wx,o-rwx"
+  with_items: "{{find_output.stdout_lines}}"
+  become: yes

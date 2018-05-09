@@ -1,0 +1,74 @@
+---
+
+# 4.2.3 ===============================================================================================================
+
+
+# This facts are used to choose what to harden in the ./main.yml
+- name: Initializing facts
+  set_fact: 
+    rsyslog_installed: False
+    syslog_ng_installed: False 
+
+- block:
+  - name: Verify if rsyslog is installed on Debian based distros
+    shell: dpkg -s rsyslog | grep Status
+    register: dpkg_result
+    failed_when: dpkg_result.rc != 0 and dpkg_result.rc != 1
+    changed_when: false
+
+  - set_fact: 
+      rsyslog_installed: True  
+    when: "'Status: install ok installed' in dpkg_result.stdout"
+
+  - name: Verify if syslog-ng is installed on Debian based distros
+    shell: dpkg -s syslog-ng | grep Status
+    register: dpkg_result
+    failed_when: dpkg_result.rc != 0 and dpkg_result.rc != 1
+    changed_when: false
+
+  - set_fact: 
+      syslog_ng_installed: True  
+    when: "'Status: install ok installed' in dpkg_result.stdout"
+
+  when: ansible_pkg_mgr=="apt"
+
+- block:
+  - name: Verify if rsyslog is installed on RedHat based distros
+    shell: rpm -q rsyslog 
+    args: 
+      warn: false
+    register: rpm_result
+    failed_when: rpm_result.rc != 0 and rpm_result.rc != 1
+    changed_when: false
+
+  - set_fact: 
+      rsyslog_installed: True  
+    when: '"is not installed" not in rpm_result.stdout'
+
+  - name: Verify if syslog-ng is installed on RedHat based distros
+    shell: rpm -q syslog-ng
+    args: 
+      warn: false
+    register: rpm_result
+    failed_when: rpm_result.rc != 0 and rpm_result.rc != 1
+    changed_when: false
+
+  - set_fact: 
+      syslog_ng_installed: True  
+    when: '"is not installed" not in rpm_result.stdout'
+
+  when: ansible_pkg_mgr=='yum'
+  
+
+- block:
+  - name: Install rsyslog if no rsyslog nor syslog-ng are installed on Debian based distros
+    package:
+      name: rsyslog
+      state: present
+    become: yes
+
+  - set_fact:
+      rsyslog_installed: True
+
+  when: not syslog_ng_installed and not rsyslog_installed
+

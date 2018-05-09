@@ -1,5 +1,15 @@
 ---
 - include: 01.auditd.yml
   tags: [harden_server_level2, harden_workstation_level2]
-  
+
+- include: 04.install.rsyslog.or.syslog-ng.yml
+
 - include: 02.rsyslog.yml
+  when: rsyslog_installed
+
+- include: 03.syslog-ng.yml
+  when: syslog_ng_installed
+
+- include: 05.log.files.permissions.yml
+
+- include: 06.logrotate.yml
