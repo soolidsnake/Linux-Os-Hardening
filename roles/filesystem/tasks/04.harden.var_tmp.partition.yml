@@ -35,6 +35,21 @@
   become: yes
   tags: [harden_server_level2, harden_workstation_level2]
 
+- block:
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.7| Ensure separate partition exists for /var/tmp']" 
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.8| Ensure nodev option set on /var/tmp partition']" 
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.9| Ensure nosuid option set on /var/tmp partition']" 
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.10| Ensure noexec option set on /var/tmp partition']" 
+
+  when: var_tmp_partition is not defined
+
 
 # Harden the /var/tmp partition if it already exists
 - block:
@@ -68,3 +83,33 @@
         or "nodev" not in var_tmp_partition.options
         or "noexec" not in var_tmp_partition.options)
   become: yes
+
+- block:
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.7| Ensure separate partition exists for /var/tmp']" 
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.8| Ensure nodev option set on /var/tmp partition']" 
+    when: "'nodev' in var_tmp_partition.options"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.8| Ensure nodev option set on /var/tmp partition']" 
+    when: "'nodev' not in var_tmp_partition.options"
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.9| Ensure nosuid option set on /var/tmp partition']" 
+    when: "'nosuid' in var_tmp_partition.options"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.9| Ensure nosuid option set on /var/tmp partition']" 
+    when: "'nosuid' not in var_tmp_partition.options"
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.10| Ensure noexec option set on /var/tmp partition']" 
+    when: "'noexec' in var_tmp_partition.options"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.10| Ensure noexec option set on /var/tmp partition']" 
+    when: "'noexec' not in var_tmp_partition.options"
+
+  when: var_tmp_partition is defined
