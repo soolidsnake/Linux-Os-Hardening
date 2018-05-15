@@ -1,5 +1,8 @@
 # Not tested yet
 ---
+
+# 1.1.13 ==============================================================================================================
+
 - name: Verify that a separate partition exists for /home
   set_fact:
     home_partition: "{{item}}"
@@ -8,13 +11,23 @@
   no_log: yes
 
 
-- name: Tell the user that this partition should be hardenend manually
-  debug: msg="It is too dangerous to create and mount the /home partition automatically from here,
-    You should manually log into that machine and perform operation from single user mode. 
-    A script will be generated that will let you create and mount /var/tmp partition properly and manually."
+# - name: Tell the user that this partition should be hardenend manually
+#   debug: msg="It is too dangerous to create and mount the /home partition automatically from here,
+#     You should manually log into that machine and perform operation from single user mode. 
+#     A script will be generated that will let you create and mount /var/tmp partition properly and manually."
 
+#   when: home_partition is not defined
+
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|1.1.13| Ensure separate partition exists for /home']" 
   when: home_partition is not defined
 
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.13| Ensure separate partition exists for /home']" 
+  when: home_partition is defined
+
+
+# 1.1.14 ==============================================================================================================
 
 - name: Remount the /home partition with the proper options
   mount: 
@@ -25,3 +38,17 @@
     state: mounted
   when: home_partition is defined
   tags: [print_action]
+
+- block:
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.13| Ensure separate partition exists for /home']" 
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.14| Ensure nodev option set on /home partition']" 
+    when: "'nodev' in home_partition.options"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.14| Ensure nodev option set on /home partition']" 
+    when: "'nodev' not in home_partition.options"
+
+  when: home_partition is defined
