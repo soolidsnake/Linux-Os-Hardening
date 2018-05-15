@@ -6,9 +6,17 @@
   when: "item.mount=='/var/log/audit'"
   no_log: yes
 
-- name: Tell the user that this partition should be hardend manually
-  debug: msg="It is too dangerous to create and mount the /var/log/audit partition automatically from here,
-              You should manually log into that machine and perform the operation from single user mode. 
-              A script will be generated that will let you create and mount /var/log/audit partition properly and manually."
+# - name: Tell the user that this partition should be hardend manually
+#   debug: msg="It is too dangerous to create and mount the /var/log/audit partition automatically from here,
+#               You should manually log into that machine and perform the operation from single user mode. 
+#               A script will be generated that will let you create and mount /var/log/audit partition properly and manually."
 
+#   when: var_log_audit_partiton is not defined
+
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|1.1.12| Ensure separate partition exists for /var/log/audit']" 
   when: var_log_audit_partiton is not defined
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.12| Ensure separate partition exists for /var/log/audit']" 
+  when: var_log_audit_partiton is defined
