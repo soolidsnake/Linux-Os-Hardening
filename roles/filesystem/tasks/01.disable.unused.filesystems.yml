@@ -1,5 +1,9 @@
 # We can dispatch this file into multiple files inside the directory 01.disable.unused.filesystems if we want.
 ---
+
+
+# 1.1.1.1 =============================================================================================================
+
 - name: Verify that the module for the filesystem cramfs is not loaded
   shell: /sbin/lsmod
   register: result
@@ -17,6 +21,16 @@
   when: '"cramfs" in result.stdout'
 
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.1| Ensure mounting of cramfs filesystems is disabled']" 
+  when: '"cramfs" in result.stdout'
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.1| Ensure mounting of cramfs filesystems is disabled']" 
+  when: '"cramfs" not in result.stdout'
+
+
+# 1.1.1.2 =============================================================================================================
 
 - name: Verify that the module for the filesystem freevxfs is not loaded
   shell: /sbin/lsmod
@@ -32,7 +46,16 @@
   become: yes
   when: '"freevxfs" in result.stdout'
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.2| Ensure mounting of freevxfs filesystems is disabled']" 
+  when: '"freevxfs" in result.stdout'
 
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.2| Ensure mounting of freevxfs filesystems is disabled']" 
+  when: '"freevxfs" not in result.stdout'
+
+
+# 1.1.1.3 =============================================================================================================
 
 - name: Verify that the module for the filesystem jffs2 is not loaded
   shell: /sbin/lsmod
@@ -48,7 +71,16 @@
   become: yes
   when: '"jffs2" in result.stdout'
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.3| Ensure mounting of jffs2 filesystems is disabled']" 
+  when: '"jffs2" in result.stdout'
 
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.3| Ensure mounting of jffs2 filesystems is disabled']" 
+  when: '"jffs2" not in result.stdout'
+
+
+# 1.1.1.4 =============================================================================================================
 
 - name: Verify that the module for the filesystem hfs is not loaded
   shell: /sbin/lsmod
@@ -64,7 +96,16 @@
   become: yes
   when: '"hfs" in result.stdout'
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.4| Ensure mounting of hfs filesystems is disabled']" 
+  when: '"hfs" in result.stdout'
 
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.4| Ensure mounting of hfs filesystems is disabled']" 
+  when: '"hfs" not in result.stdout'
+
+
+# 1.1.1.5 =============================================================================================================
 
 - name: Verify that the module for the filesystem hfsplus is not loaded
   shell: /sbin/lsmod
@@ -80,7 +121,16 @@
   become: yes
   when: '"hfsplus" in result.stdout'
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.5| Ensure mounting of hfsplus filesystems is disabled']" 
+  when: '"hfsplus" in result.stdout'
 
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.5| Ensure mounting of hfsplus filesystems is disabled']" 
+  when: '"hfsplus" not in result.stdout'
+
+
+# 1.1.1.6 =============================================================================================================
   
 - name: Verify that the module for the filesystem squashfs is not loaded
   shell: /sbin/lsmod
@@ -96,7 +146,16 @@
   become: yes
   when: '"squashfs" in result.stdout'
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.6| Ensure mounting of squashfs filesystems is disabled']" 
+  when: '"squashfs" in result.stdout'
 
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.6| Ensure mounting of squashfs filesystems is disabled']" 
+  when: '"squashfs" not in result.stdout'
+
+
+# 1.1.1.7 =============================================================================================================
 
 - name: Verify that the module for the filesystem udf is not loaded
   shell: /sbin/lsmod
@@ -112,7 +171,16 @@
   become: yes
   when: '"udf" in result.stdout'
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.1.7| Ensure mounting of udf filesystems is disabled']" 
+  when: '"udf" in result.stdout'
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.1.7| Ensure mounting of udf filesystems is disabled']" 
+  when: '"udf" not in result.stdout'
  
+
+# 1.1.1.8 =============================================================================================================
 
 - name: Verify that the module for the filesystem vfat is not loaded
   shell: /sbin/lsmod
@@ -128,3 +196,11 @@
   become: yes
   tags: [harden_server_level2, harden_workstation_level2]
   when: '"vfat" in result.stdout'
+
+# - set_fact:
+#     done_patch: "{{done_patch}} + ['|1.1.1.8| Ensure mounting of vfat filesystems is disabled']" 
+#   when: '"vfat" in result.stdout'
+
+# - set_fact:
+#     already_done_patch: "{{already_done_patch}} + ['|1.1.1.8| Ensure mounting of vfat filesystems is disabled']" 
+#   when: '"vfat" not in result.stdout'
