@@ -1,7 +1,7 @@
 # We can dispatch this file into multiple files inside the directory 01.disable.unused.filesystems if we want.
 ---
 - name: Verify that the module for the filesystem cramfs is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
   tags: [print_action]
 
@@ -19,7 +19,7 @@
 
 
 - name: Verify that the module for the filesystem freevxfs is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
@@ -35,7 +35,7 @@
 
 
 - name: Verify that the module for the filesystem jffs2 is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
@@ -51,7 +51,7 @@
 
 
 - name: Verify that the module for the filesystem hfs is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
@@ -67,7 +67,7 @@
 
 
 - name: Verify that the module for the filesystem hfsplus is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
@@ -83,7 +83,7 @@
 
   
 - name: Verify that the module for the filesystem squashfs is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
@@ -99,7 +99,7 @@
 
 
 - name: Verify that the module for the filesystem udf is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
@@ -115,7 +115,7 @@
  
 
 - name: Verify that the module for the filesystem vfat is not loaded
-  shell: lsmod
+  shell: /sbin/lsmod
   register: result
 
 - block:
