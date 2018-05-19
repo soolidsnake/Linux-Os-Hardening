@@ -6,7 +6,8 @@
   roles:
   #- {role: filesystem, tags: [harden_level2]}
   #- sshd # redhat && debian
-  - pam
+  #- pam
   #- system_maintenance # redhat && debian
   #- cron # redhat && debian
   #- Network_Configuration # redhat && debian
+  - services

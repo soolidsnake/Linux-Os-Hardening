@@ -1,0 +1,33 @@
+---
+
+- block: 
+  - name: Ensure tcp_wrappers is installed Debian
+    apt:
+      name: tcp_wrappers
+      update_cache: yes
+    when: ansible_os_family=='Debian'
+
+  - name: Ensure tcp_wrappers is installed RedHat
+    yum:
+      name: tcp_wrappers
+      update_cache: yes
+    when: ansible_os_family=='RedHat'
+
+
+  - name: Ensure /etc/hosts.allow is configured
+    debug: msg='Please set hosts.allow manually like the following 
+                echo "ALL <net>/<mask>, <net>/<mask>, ..." >/etc/hosts.allow
+                where each <net>/<mask> combination (for example, "192.168.1.0/255.255.255.0")
+                represents one network block in use by your organization that requires access to this
+                system.'
+
+  - name: Ensure /etc/hosts.deny is configured
+    shell: 'echo "ALL: ALL" >> /etc/hosts.deny'
+
+  - name: Ensure permissions on /etc/hosts.allow are configured
+    file: path="/etc/hosts.allow" mode=0644 owner=root group=root
+
+  - name: Ensure permissions on /etc/hosts.deny are configured
+    file: path="/etc/hosts.deny" mode=0644 owner=root group=root
+
+  become: yes

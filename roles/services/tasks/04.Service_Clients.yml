@@ -1,0 +1,75 @@
+---
+
+- block:
+  - name: Ensure ypbind is not installed
+    yum:
+      name: ypbind
+      state: absent
+
+
+
+  - name: Ensure rsh is not installed
+    yum:
+      name: rsh
+      state: absent
+
+
+  - name: Ensure talk is not installed
+    yum:
+      name: talk
+      state: absent
+
+
+  - name: Ensure telnet is not installed
+    yum:
+      name: telnet
+      state: absent
+
+
+  - name: Ensure openldap-clients is not installed
+    yum:
+      name: openldap-clients
+      state: absent
+
+
+  become: yes
+  when: ansible_os_family=='RedHat'
+
+
+
+
+
+- block:
+  - name: Ensure ypbind is not installed
+    apt:
+      name: ypbind
+      state: absent
+
+
+
+  - name: Ensure rsh is not installed
+    apt:
+      name: rsh
+      state: absent
+
+
+  - name: Ensure talk is not installed
+    apt:
+      name: talk
+      state: absent
+
+
+  - name: Ensure telnet is not installed
+    apt:
+      name: telnet
+      state: absent
+
+
+  - name: Ensure openldap-clients is not installed
+    apt:
+      name: openldap-clients
+      state: absent
+
+
+  become: yes
+  when: ansible_os_family=='Debian'

@@ -1,0 +1,31 @@
+---
+
+- block: 
+  - name: Ensure time synchronization is in use install ntp
+    yum:
+      name: ntp
+      update_cache: yes
+
+  - name: Ensure time synchronization is in use install chrony
+    yum:
+      name: chrony
+      update_cache: yes
+    
+  become: yes
+  when: ansible_os_family=='RedHat'
+
+
+
+- block: 
+  - name: Ensure time synchronization is in use install ntp
+    apt:
+      name: ntp
+      update_cache: yes
+
+  - name: Ensure time synchronization is in use install chrony
+    apt:
+      name: chrony
+      update_cache: yes
+    
+  become: yes
+  when: ansible_os_family=='Debian'
