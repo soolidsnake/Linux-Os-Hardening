@@ -1,0 +1,37 @@
+---
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} manual"
+    value: "{{manual_patch}}"
+    type: list
+  when: manual_patch.0 is defined
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} manual"
+    value: "empty"
+  when: manual_patch.0 is not defined
+
+# =====================================================================================================================
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} done now"
+    value: "{{done_patch}}"
+    type: list
+  when: done_patch.0 is defined
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} done now"
+    value: "empty"
+  when: done_patch.0 is not defined
+
+# =====================================================================================================================
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} already done"
+    value: "{{already_done_patch}}"
+    type: list
+  when: already_done_patch.0 is defined
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} already done"
+    value: "empty"
+  when: already_done_patch.0 is not defined 

@@ -1,0 +1,12 @@
+---
+- name: "Init 'manual' facts"
+  set_fact: 
+    manual_patch: []
+
+- name: "Init 'done now' facts"
+  set_fact: 
+    done_patch: []
+
+- name: "Init 'already done' facts"
+  set_fact: 
+    already_done_patch: []
