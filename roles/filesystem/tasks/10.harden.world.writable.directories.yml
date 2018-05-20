@@ -1,4 +1,7 @@
 ---
+
+# 1.1.21 ==============================================================================================================
+
 - name: Find all world writable directories
   shell: find / -type d \( -perm -0222 -a ! -perm -1000 \)
 
@@ -13,4 +16,14 @@
     mode: "o+t"
   with_items: "{{find_output.stdout.split('\n')}}"
   when: "find_output.stdout != ''"
+  register: file_output
   become: yes
+
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.21| Ensure sticky bit set on all world-writable directories']" 
+  when: not file_output.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.21| Ensure sticky bit set on all world-writable directories']" 
+  when: file_output.changed
