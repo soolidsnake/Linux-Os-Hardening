@@ -35,3 +35,16 @@
     key: "{{ansible_all_ipv4_addresses[0]}} already done"
     value: "empty"
   when: already_done_patch.0 is not defined 
+
+# =====================================================================================================================
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} not done"
+    value: "{{not_done}}"
+    type: list
+  when: not_done.0 is defined
+
+- ara_record:
+    key: "{{ansible_all_ipv4_addresses[0]}} not done"
+    value: "empty"
+  when: not_done.0 is not defined

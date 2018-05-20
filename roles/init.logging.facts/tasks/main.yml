@@ -10,3 +10,7 @@
 - name: "Init 'already done' facts"
   set_fact: 
     already_done_patch: []
+
+- name: "Init 'not done' facts"
+  set_fact: 
+    not_done: []
