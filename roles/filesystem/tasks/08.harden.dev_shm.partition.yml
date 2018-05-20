@@ -1,4 +1,8 @@
 ---
+
+
+# 1.1.15 | 1.1.16 | 1.1.17 ============================================================================================
+
 - name: Detect if the /dev/shm partition has the right options
   shell: mount
   register: mount_output
@@ -16,3 +20,30 @@
       or mount_output.stdout is not search("/dev/shm.*nosuid")
 
   become: yes
+
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']" 
+  when: mount_output.stdout is search("/dev/shm.*nodev")
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']" 
+  when: mount_output.stdout is not search("/dev/shm.*nodev")
+
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']" 
+  when: mount_output.stdout is search("/dev/shm.*nosuid")
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']" 
+  when: mount_output.stdout is not search("/dev/shm.*nosuid") 
+
+  
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']" 
+  when: mount_output.stdout is search("/dev/shm.*noexec")
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']" 
+  when: mount_output.stdout is not search("/dev/shm.*noexec") 
