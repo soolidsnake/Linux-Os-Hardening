@@ -54,7 +54,7 @@
       line: 'HostbasedAuthentication no'
 
 
-  - name: set root login == enabled
+  - name: set root login == disabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^PermitRootLogin'

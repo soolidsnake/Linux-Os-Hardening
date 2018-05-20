@@ -1,0 +1,199 @@
+---
+- block:
+  - name: check if chargen services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable chargen services
+    shell: "chkconfig chargen-dgram off &&
+            chkconfig chargen-stream off"
+    when: (chkconfig_output.stdout in "chargen-dgram\":\" on" or chkconfig_output.stdout in "chargen-stream\":\" on") 
+
+
+
+  - name: check if daytime services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable daytime services
+    shell: "chkconfig daytime-dgram off &&
+            chkconfig daytime-stream off"
+    when: (chkconfig_output.stdout in "daytime-dgram\":\" on" or chkconfig_output.stdout in "daytime-stream\":\" on") 
+
+
+
+  - name: check if discard services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable discard services
+    shell: "chkconfig discard-dgram off &&
+            chkconfig discard-stream off"
+    when: (chkconfig_output.stdout in "discard-dgram\":\" on" or chkconfig_output.stdout in "discard-stream\":\" on") 
+
+
+
+  - name: check if echo services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable echo services
+    shell: "chkconfig echo-dgram off &&
+            chkconfig echo-stream off"
+    when: (chkconfig_output.stdout in "echo-dgram\":\" on" or chkconfig_output.stdout in "echo-stream\":\" on") 
+
+
+
+  - name: check if time services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable time services
+    shell: "chkconfig time-dgram off &&
+            chkconfig time-stream off"
+    when: (chkconfig_output.stdout in "time-dgram\":\" on" or chkconfig_output.stdout in "time-stream\":\" on") 
+
+
+
+  - name: check if tftp services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable tftp services
+    shell: "chkconfig tftp off"
+    when: (chkconfig_output.stdout in "tftp-dgram\":\" on" or chkconfig_output.stdout in "tftp-stream\":\" on") 
+
+
+
+  - name: check if xinetd services are not enabled
+    shell: systemctl is-enabled xinetdt
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable xinetd services
+    shell: "systemctl disable xinetd"
+    when: systemctl_output.stdout != disabled
+  become: yes
+  when: ansible_os_family=='RedHat'
+
+
+
+
+
+
+- block:
+  - name: check if chargen services are not enabled
+    shell: grep -R "^chargen" /etc/inetd.*
+    register: grep_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable chargen services
+    shell: "chkconfig chargen-dgram off &&
+            chkconfig chargen-stream off"
+    when: grep_output.rc == 0 
+
+
+
+  - name: check if daytime services are not enabled
+    shell: grep -R "^daytime" /etc/inetd.*
+    register: grep_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable daytime services
+    shell: "chkconfig daytime-dgram off &&
+            chkconfig daytime-stream off"
+    when: grep_output.rc == 0 
+
+
+
+  - name: check if discard services are not enabled
+    shell: grep -R "^discard" /etc/inetd.*
+    register: grep_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable discard services
+    shell: "chkconfig discard-dgram off &&
+            chkconfig discard-stream off"
+    when: grep_output.rc == 0 
+
+
+
+  - name: check if echo services are not enabled
+    shell: grep -R "^echo" /etc/inetd.*
+    register: grep_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable echo services
+    shell: "chkconfig echo-dgram off &&
+            chkconfig echo-stream off"
+    when: grep_output.rc == 0 
+
+
+
+  - name: check if time services are not enabled
+    shell: grep -R "^time" /etc/inetd.*
+    register: grep_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable time services
+    shell: "chkconfig time-dgram off &&
+            chkconfig time-stream off"
+    when: grep_output.rc == 0 
+
+
+
+  - name: check if tftp services are not enabled
+    shell: grep -R "^tftp" /etc/inetd.*
+    register: grep_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable tftp services
+    shell: "chkconfig tftp off"
+    when: grep_output.rc == 0 
+
+
+
+  - name: check if xinetd services are not enabled
+    shell: systemctl is-enabled xinetdt
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable xinetd services
+    shell: "systemctl disable xinetd"
+    when: systemctl_output.stdout != "disabled"
+  become: yes
+  when: ansible_os_family=='Debian'

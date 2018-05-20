@@ -1,0 +1,155 @@
+---
+
+- block:
+  - name: Ensure X Window System is not installedp
+    yum:
+      shell: yum remove xorg-x11*
+      update_cache: yes
+
+
+
+  - name: Ensure Avahi Server is not enabled
+    shell: systemctl is-enabled avahi-daemon
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable vahi Server
+    shell: "systemctl disable avahi-daemon"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure CUPS is not enabled
+    shell: systemctl is-enabled cups
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable CUPS
+    shell: "systemctl disable cups"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure DHCP Server is not enabled
+    shell: systemctl is-enabled dhcpd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable DHCP Server
+    shell: "systemctl disable dhcpd"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure LDAP Server is not enabled
+    shell: systemctl is-enabled slapd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable LDAP Server
+    shell: "systemctl disable slapd"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure Samba Server is not enabled
+    shell: systemctl is-enabled smb
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable Samba Server
+    shell: "systemctl disable smb"
+    when: systemctl_output.stdout != disabled
+    
+  when: ansible_os_family=='RedHat'
+
+
+
+
+
+
+
+
+
+- block:
+  - name: Ensure X Window System is not installedp
+    yum:
+      shell: yum remove xorg-x11*
+      update_cache: yes
+
+
+
+  - name: Ensure Avahi Server is not enabled
+    shell: systemctl is-enabled avahi-daemon
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable vahi Server
+    shell: "systemctl disable avahi-daemon"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure CUPS is not enabled
+    shell: systemctl is-enabled cups
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable CUPS
+    shell: "systemctl disable cups"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure DHCP Server is not enabled
+    shell: systemctl is-enabled dhcpd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable DHCP Server
+    shell: "systemctl disable dhcpd"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure LDAP Server is not enabled
+    shell: systemctl is-enabled slapd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable LDAP Server
+    shell: "systemctl disable slapd"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure Samba Server is not enabled
+    shell: systemctl is-enabled smb
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable Samba Server
+    shell: "systemctl disable smb"
+    when: systemctl_output.stdout != disabled
+    
+  when: ansible_os_family=='Debian'

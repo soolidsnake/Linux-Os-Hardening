@@ -3,10 +3,29 @@
   hosts: testServer
   # become: no
 
+  vars_files:
+  - checklist.yml
+
   roles:
   #- {role: filesystem, tags: [harden_level2]}
   #- sshd # redhat && debian
-  - pam
+  #- pam
   #- system_maintenance # redhat && debian
   #- cron # redhat && debian
   #- Network_Configuration # redhat && debian
+  # - services
+  #- filesystem
+  #- pam
+  #- system_maintenance
+  #- cron
+  #- Network_Configuration
+  # - filesystem
+  # - sshd
+  # - bootloader
+  # - warning.banners
+  # - update.and.patch
+  # - additional.process.hardening
+  - init.logging.facts
+  # - filesystem
+  - log.and.audit
+  - save.logging.facts
