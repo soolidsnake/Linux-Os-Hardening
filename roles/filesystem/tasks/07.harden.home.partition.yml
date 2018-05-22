@@ -22,10 +22,6 @@
     manual_patch: "{{manual_patch}} + ['|1.1.13| Ensure separate partition exists for /home']" 
   when: home_partition is not defined
 
-- set_fact:
-    already_done_patch: "{{already_done_patch}} + ['|1.1.13| Ensure separate partition exists for /home']" 
-  when: home_partition is defined
-
 
 # 1.1.14 ==============================================================================================================
 
