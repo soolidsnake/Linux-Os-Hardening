@@ -1,7 +1,23 @@
 # My example
 filesystem:
-  # A little documentation about the thing here.
-  disable_cramfs_module: yes
+  # 1.1.1.1 
+  disable_cramfs_filesystem: yes
+  # 1.1.1.2 
+  disable_freevxfs_filesystem: no
+  # 1.1.1.3 
+  disable_jffs2_filesystem: yes
+  # 1.1.1.4 
+  disable_hfs_filesystem: yes
+  # 1.1.1.5 
+  disable_hfsplus_filesystem: yes
+  # 1.1.1.6 
+  disable_squashfs_filesystem: yes
+  # 1.1.1.7 
+  disable_udf_filesystem: yes
+  # 1.1.1.8 
+  disable_vfat_filesystem: no
+
+  sticky_bit_world_writable_dirs: no
 
 
 
