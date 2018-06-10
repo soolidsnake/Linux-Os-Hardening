@@ -1,49 +1,83 @@
 ---
 
-
 # 1.1.15 | 1.1.16 | 1.1.17 ============================================================================================
 
 - name: Detect if the /dev/shm partition has the right options
   shell: mount
   register: mount_output
 
-- name: Remount the /dev/shm partition with the proper options And these options to boot
+# Set the wanted paramaters into a variable.
+- block:
+  - name: Empty the fact mount_options
+    set_fact:
+      mount_options: ""
+
+  - name: Setting the parameter nodev
+    set_fact:
+      mount_options: "nodev"
+    when: filesystem.dev_shm_nodev
+
+  - name: Setting the parameter nosuid
+    set_fact:
+      mount_options: "{{ 'nosuid' if mount_options is not defined else mount_options + ',' + 'nosuid' }}"
+    when: filesystem.dev_shm_nosuid
+
+  - name: Setting the parameter noexec
+    set_fact:
+      mount_options: "{{ 'noexec' if mount_options is not defined else mount_options + ',' + 'noexec' }}"
+    when: filesystem.dev_shm_noexec
+
+  - name: Setting extra parameters
+    set_fact:
+      mount_options: "{{ 'rw,relatime' if mount_options is not defined else 'rw,' + mount_options + ',relatime' }}"
+
+
+- name: Remount the /dev/shm partition with the proper options
   mount: 
     path: /dev/shm
     src: /dev/shm
     fstype: tmpfs
-    opts: rw,nosuid,noexec,nodev,relatime
+    opts: "{{mount_options}}"
     state: mounted
-
-  when: mount_output.stdout is not search("/dev/shm.*noexec")
-      or mount_output.stdout is not search("/dev/shm.*nodev")
-      or mount_output.stdout is not search("/dev/shm.*nosuid")
 
   become: yes
 
 
-- set_fact:
-    already_done_patch: "{{already_done_patch}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']" 
-  when: mount_output.stdout is search("/dev/shm.*nodev")
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']"
+    when: not filesystem.dev_shm_nodev
 
-- set_fact:
-    done_patch: "{{done_patch}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']" 
-  when: mount_output.stdout is not search("/dev/shm.*nodev")
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']" 
+    when: filesystem.dev_shm_nodev and mount_output.stdout is search("/dev/shm.*nodev")
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.15| Ensure nodev option set on /dev/shm partition']" 
+    when: filesystem.dev_shm_nodev and mount_output.stdout is not search("/dev/shm.*nodev")
 
 
-- set_fact:
-    already_done_patch: "{{already_done_patch}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']" 
-  when: mount_output.stdout is search("/dev/shm.*nosuid")
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']"
+    when: not filesystem.dev_shm_nosuid
 
-- set_fact:
-    done_patch: "{{done_patch}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']" 
-  when: mount_output.stdout is not search("/dev/shm.*nosuid") 
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']" 
+    when: filesystem.dev_shm_nosuid and mount_output.stdout is search("/dev/shm.*nosuid")
 
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.16| Ensure nosuid option set on /dev/shm partition']" 
+    when: filesystem.dev_shm_nosuid and mount_output.stdout is not search("/dev/shm.*nosuid")
   
-- set_fact:
-    already_done_patch: "{{already_done_patch}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']" 
-  when: mount_output.stdout is search("/dev/shm.*noexec")
 
-- set_fact:
-    done_patch: "{{done_patch}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']" 
-  when: mount_output.stdout is not search("/dev/shm.*noexec") 
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']"
+    when: not filesystem.dev_shm_noexec
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']" 
+    when: filesystem.dev_shm_noexec and mount_output.stdout is search("/dev/shm.*noexec")
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.17| Ensure noexec option set on /dev/shm partition']" 
+    when: filesystem.dev_shm_noexec and mount_output.stdout is not search("/dev/shm.*noexec")
