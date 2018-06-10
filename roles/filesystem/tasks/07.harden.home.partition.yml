@@ -11,13 +11,6 @@
   no_log: yes
 
 
-# - name: Tell the user that this partition should be hardenend manually
-#   debug: msg="It is too dangerous to create and mount the /home partition automatically from here,
-#     You should manually log into that machine and perform operation from single user mode. 
-#     A script will be generated that will let you create and mount /var/tmp partition properly and manually."
-
-#   when: home_partition is not defined
-
 - set_fact:
     manual_patch: "{{manual_patch}} + ['|1.1.13| Ensure separate partition exists for /home']" 
   when: home_partition is not defined
@@ -30,9 +23,9 @@
     path: /home
     src: "{{home_partition.device}}"
     fstype: "{{home_partition.fstype}}"
-    opts: rw,nodev,relatime
+    opts: rw,{{ 'nodev,' if filesystem.home_partition_nodev else '' }}relatime
     state: mounted
-  when: home_partition is defined
+  when: home_partition is defined 
   tags: [print_action]
 
 - block:
@@ -41,10 +34,14 @@
 
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|1.1.14| Ensure nodev option set on /home partition']" 
-    when: "'nodev' in home_partition.options"
+    when: "filesystem.home_partition_nodev and 'nodev' in home_partition.options"
 
   - set_fact:
       done_patch: "{{done_patch}} + ['|1.1.14| Ensure nodev option set on /home partition']" 
-    when: "'nodev' not in home_partition.options"
+    when: "filesystem.home_partition_nodev and 'nodev' not in home_partition.options"
+
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.14| Ensure nodev option set on /home partition']" 
+    when: not filesystem.home_partition_nodev
 
   when: home_partition is defined
