@@ -81,7 +81,11 @@ sshd:
   HostbasedAuthentication: yes
   disable_root_login: yes
 
-
+pam:
+  allow_3_tries_before_failure: yes
+  set_policy: yes
+  lockout_failed_attempts: yes
+  password_reuse_limit_and_sha512_as_default: yes
 
 
 
