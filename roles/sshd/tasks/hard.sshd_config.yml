@@ -13,62 +13,69 @@
     when: sshd_config.stat.pw_name != 'root' or sshd_config.stat.gr_name != 'root'
 
 
-  - name: set protocol version == 2
+  - name: set protocol version t 2
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^Protocol'
       line: 'Protocol 2'
+    when: ssh.protocole_version_2
 
 
-  - name: set LogLevel == INFO
+  - name: set LogLevel to INFO
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^LogLevel'
       line: 'LogLevel INFO'
+    when: ssh.log_level_info
 
 
-  - name: set X11 forwarding == disabled
+  - name: set X11 forwarding to disabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^X11Forwarding'
       line: 'X11Forwarding no'
+    when: ssh.disable_x11_forwarding
 
   # set it to be variable
-  - name: set MaxAuthTries == 4
+  - name: set MaxAuthTries to 4
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^MaxAuthTries'
       line: 'MaxAuthTries 4'
 
-  - name: set IgnoreRhosts == enabled
+  - name: set IgnoreRhosts to enabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^IgnoreRhosts'
       line: 'IgnoreRhosts yes'
+    when: ssh.enable_IgnoreRhosts
+    
 
 
-  - name: set HostbasedAuthentication == disabled
+  - name: set HostbasedAuthentication to disabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^HostbasedAuthentication'
       line: 'HostbasedAuthentication no'
+    when: ssh.disable_HostbasedAuthentication
 
 
-  - name: set root login == disabled
+  - name: set root login to disabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^PermitRootLogin'
       line: 'PermitRootLogin no'
+    when: ssh.disable_root_login
 
 
-  - name: set PermitEmptyPasswords == disabled
+  - name: set PermitEmptyPasswords to disabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^PermitEmptyPasswords'
       line: 'PermitEmptyPasswords no'
 
 
-  - name: set PermitUserEnvironment == disabled
+  - name: set PermitUserEnvironment to disabled
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: 'PermitUserEnvironment'
@@ -83,7 +90,7 @@
   etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com'
 
 
-  - name: set ClientAliveInterval == 300 and set ClientAliveCountMax == 4 
+  - name: set ClientAliveInterval to 300 and set ClientAliveCountMax to 4 
     lineinfile:
       path:   "{{sshd_config_path}}"
       regexp: "{{item.regexp}}"

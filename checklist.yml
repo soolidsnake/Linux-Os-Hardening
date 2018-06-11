@@ -70,10 +70,19 @@ filesystem:
   disable_automounting: yes
 
 
-# Your example.
 sshd:
   # This will be hardened. You have to do a check in your task to this variable.
   # The check in the task is done like this : when: sshd.protocole_version_2
   protocole_version_2: yes
   # This won't be hardened
   log_level_info: no
+  disable_x11_forwarding: yes
+  enable_IgnoreRhosts: yes
+  HostbasedAuthentication: yes
+  disable_root_login: yes
+
+
+
+
+
+
