@@ -83,6 +83,9 @@ sshd:
   enable_IgnoreRhosts: yes
   HostbasedAuthentication: yes
   disable_root_login: yes
+  ssh_limit: yes
+  set_ClientAliveInterval_300_and_ClientAliveCountMax_4: yes
+  set_LoginGraceTime_1minute: yes
 
 
 pam:

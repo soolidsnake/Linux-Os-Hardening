@@ -5,20 +5,38 @@
     register: sshd_config
 
   - name: Wrong permissions on sshd_config
-    file: path="{{sshd_config_path}}" mode=0600
-    when: sshd_config.stat.mode != '0600'
+    file: path="{{sshd_config_path}}" owner=root group=root mode=0600
+    when: sshd_config.stat.pw_name != 'root' or sshd_config.stat.gr_name != 'root' or sshd_config.stat.mode != '0600'
+    register: change_state
 
-  - name: Wrong ownership on sshd_config
-    file: path="{{sshd_config_path}}" owner=root group=root
-    when: sshd_config.stat.pw_name != 'root' or sshd_config.stat.gr_name != 'root'
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.1| Ensure permissions on /etc/ssh/sshd_config are configured']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.1| Ensure permissions on /etc/ssh/sshd_config are configured']" 
+    when: not change_state.changed
 
 
-  - name: set protocol version t 2
+  - name: set protocol version to 2
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^Protocol'
       line: 'Protocol 2'
     when: ssh.protocole_version_2
+    register: change_state
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.2| Ensure SSH Protocol is set to 2']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.2| Ensure SSH Protocol is set to 2']" 
+    when: not change_state.changed
 
 
   - name: set LogLevel to INFO
@@ -27,6 +45,17 @@
       regexp: '^LogLevel'
       line: 'LogLevel INFO'
     when: ssh.log_level_info
+    register: change_state
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.3| Ensure SSH LogLevel is set to INFO']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.3| Ensure SSH LogLevel is set to INFO']" 
+    when: not change_state.changed
 
 
   - name: set X11 forwarding to disabled
@@ -35,6 +64,18 @@
       regexp: '^X11Forwarding'
       line: 'X11Forwarding no'
     when: ssh.disable_x11_forwarding
+    register: change_state
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.4| Ensure SSH X11 forwarding is disabled']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.4| Ensure SSH X11 forwarding is disabled']" 
+    when: not change_state.changed
+
 
   # set it to be variable
   - name: set MaxAuthTries to 4
@@ -42,6 +83,18 @@
       path: "{{sshd_config_path}}"
       regexp: '^MaxAuthTries'
       line: 'MaxAuthTries 4'
+    register: change_state
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.5| Ensure SSH MaxAuthTries is set to 4 or less']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.5| Ensure SSH MaxAuthTries is set to 4 or less']" 
+    when: not change_state.changed
+  
 
   - name: set IgnoreRhosts to enabled
     lineinfile:
@@ -49,7 +102,19 @@
       regexp: '^IgnoreRhosts'
       line: 'IgnoreRhosts yes'
     when: ssh.enable_IgnoreRhosts
-    
+    register: change_state
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.6| Ensure SSH IgnoreRhosts is enabled']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.6| Ensure SSH IgnoreRhosts is enabled']" 
+    when: not change_state.changed
+
 
 
   - name: set HostbasedAuthentication to disabled
@@ -58,6 +123,18 @@
       regexp: '^HostbasedAuthentication'
       line: 'HostbasedAuthentication no'
     when: ssh.disable_HostbasedAuthentication
+    register: change_state
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.7| Ensure SSH HostbasedAuthentication is disabled']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.7| Ensure SSH HostbasedAuthentication is disabled']" 
+    when: not change_state.changed  
 
 
   - name: set root login to disabled
@@ -66,6 +143,18 @@
       regexp: '^PermitRootLogin'
       line: 'PermitRootLogin no'
     when: ssh.disable_root_login
+    register: change_state
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.8| Ensure SSH root login is disabled']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.8| Ensure SSH root login is disabled']" 
+    when: not change_state.changed  
 
 
   - name: set PermitEmptyPasswords to disabled
@@ -73,6 +162,18 @@
       path: "{{sshd_config_path}}"
       regexp: '^PermitEmptyPasswords'
       line: 'PermitEmptyPasswords no'
+    register: change_state
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.9| Ensure SSH PermitEmptyPasswords is disabled']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.9| Ensure SSH PermitEmptyPasswords is disabled']" 
+    when: not change_state.changed  
 
 
   - name: set PermitUserEnvironment to disabled
@@ -80,6 +181,19 @@
       path: "{{sshd_config_path}}"
       regexp: 'PermitUserEnvironment'
       line: 'PermitUserEnvironment no'
+    register: change_state
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.10| Ensure SSH PermitUserEnvironment is disabled']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.10| Ensure SSH PermitUserEnvironment is disabled']" 
+    when: not change_state.changed  
+
 
 
   - name: Ensure only approved MAC algorithms are used
@@ -88,6 +202,19 @@
       regexp: 'MACs'
       line: 'MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-
   etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com'
+    register: change_state
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.11| Ensure only approved MAC algorithms are used']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.11| Ensure only approved MAC algorithms are used']" 
+    when: not change_state.changed  
+
 
 
   - name: set ClientAliveInterval to 300 and set ClientAliveCountMax to 4 
@@ -98,6 +225,19 @@
     with_items:
       - { regexp: '^ClientAliveInterval',  line: 'ClientAliveInterval 300' }
       - { regexp: '^ClientAliveCountMax',  line: 'ClientAliveCountMax 4' }
+    register: change_state
+    when: ssh.set_ClientAliveInterval_300_and_ClientAliveCountMax_4
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.12| Ensure SSH Idle Timeout Interval is configured']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.12| Ensure SSH Idle Timeout Interval is configured']" 
+    when: not change_state.changed  
 
 
   - name: Ensure SSH LoginGraceTime is set to one minute or less
@@ -105,12 +245,58 @@
       path: "{{sshd_config_path}}"
       regexp: '^LoginGraceTime'
       line: 'LoginGraceTime 60' 
-      
+    register: change_state
+    when: ssh.set_LoginGraceTime_1minute
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.13| Ensure SSH LoginGraceTime is set to one minute or less']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.13| Ensure SSH LoginGraceTime is set to one minute or less']" 
+    when: not change_state.changed  
+
+
+
+  - name: Ensure SSH access is limited
+    debug: msg="To limit the access to SSH, please configure the file /etc/ssh/sshd_config and run the             following commands 
+                AllowUsers <userlist>
+                AllowGroups <grouplist>
+                DenyUsers <userlist>
+                DenyGroups <grouplist>"
+    when: ssh.ssh_limit
+
+
+  #manually
+  - set_fact:
+     manual_patch: "{{manual_patch}} +  ['|5.2.14| Ensure SSH access is limited']" 
+    when: ssh.ssh_limit
+
+
+
+
 
   - name: Ensure SSH warning banner is configured
     lineinfile:
       path: "{{sshd_config_path}}"
       regexp: '^Banner'
       line: 'Banner /etc/issue.net'  
-      
+    register: change_state
+
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|5.2.15| Ensure SSH warning banner is configured']" 
+    when: change_state.changed
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|5.2.15| Ensure SSH warning banner is configured']" 
+    when: not change_state.changed  
+
+
   become: yes
