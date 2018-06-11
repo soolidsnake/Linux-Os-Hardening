@@ -4,13 +4,13 @@
     apt:
       name: iptables
       update_cache: yes
-    when: ansible_os_family=='Debian'
+    when: ansible_os_family=='Debian' and network.install_iptables
 
   - name: Ensure iptables is installed RedHat
     yum:
       name: iptables
       update_cache: yes
-    when: ansible_os_family=='RedHat'
+    when: ansible_os_family=='RedHat' and network.install_iptables
 
 
   # add condition
@@ -25,6 +25,7 @@
     shell : "iptables -A INPUT -i lo          -j ACCEPT && 
              iptables -A OUTPUT -o lo         -j ACCEPT &&
              iptables -A INPUT -s 127.0.0.0/8 -j DROP"
+    when: network.configure_loopback_traffic
 
 
 
@@ -35,6 +36,7 @@
              iptables -A INPUT  -p tcp  -m state --state ESTABLISHED     -j ACCEPT &&
              iptables -A INPUT  -p udp  -m state --state ESTABLISHED     -j ACCEPT &&
              iptables -A INPUT  -p icmp -m state --state ESTABLISHED     -j ACCEPT"
+    when: network.configure_outbound_established_connections
 
 
   #- name: Ensure firewall rules exist for all open ports

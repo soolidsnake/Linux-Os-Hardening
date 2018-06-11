@@ -15,13 +15,14 @@
   with_items:
     - { regexp: 'net.ipv6.conf.all.accept_ra',  line: 'net.ipv6.conf.all.accept_ra = 0' }
     - { regexp: 'net.ipv6.conf.default.accept_ra',  line: 'net.ipv6.conf.default.accept_ra = 0' }
+  when: network.ignore_router_advertisements_ipv6
   become: yes
 
 - name: Disable IPv6 router advertisements
   shell : "sysctl -w net.ipv6.conf.all.accept_ra=0    &&
            sysctl -w net.ipv6.conf.default.accept_ra=0 &&
            sysctl -w net.ipv6.route.flush=1"
-  when: grep_output.stdout == 1
+  when: grep_output.stdout == 1 and network.ignore_router_advertisements_ipv6
 
 
 
@@ -42,13 +43,14 @@
   with_items:
     - { regexp: 'net.ipv6.conf.all.accept_redirects',  line: 'net.ipv6.conf.all.accept_redirects = 0' }
     - { regexp: 'net.ipv6.conf.default.accept_redirects',  line: 'net.ipv6.conf.default.accept_redirects = 0' }
+  when: network.ignore_packet_redirect_ipv6
   become: yes
 
 - name: Disable IPv6 redirects
   shell : "sysctl -w net.ipv6.conf.all.accept_redirects=0    &&
            sysctl -w net.ipv6.conf.default.accept_redirects=0 &&
            sysctl -w net.ipv6.route.flush=1"
-  when: grep_output.stdout == 1
+  when: grep_output.stdout == 1 and network.ignore_packet_redirect_ipv6
 
 
 
@@ -62,9 +64,9 @@
   with_items:
     - { regexp: 'GRUB_CMDLINE_LINUX',  line: 'GRUB_CMDLINE_LINUX="ipv6.disable=1"' }
   become: yes
-  when: deactivate_ipv6 == "yes"
+  when: deactivate_ipv6 == "yes" and network.deactivate_ipv6
 
 - name: update grub
   shell: "update-grub"
   become: yes
-  when: deactivate_ipv6 == "yes"
+  when: deactivate_ipv6 == "yes" and network.deactivate_ipv6

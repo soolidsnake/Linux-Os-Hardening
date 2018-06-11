@@ -12,12 +12,13 @@
     path: "/etc/sysctl.conf"
     regexp: 'net.ipv4.ip_forward'
     line: 'net.ipv4.ip_forward = 0'
+  when: network.disable_ip_forwarding
   become: yes
 
 - name: Disable IP forwarding
   shell : "sysctl -w net.ipv4.ip_forward=0 && 
            sysctl -w net.ipv4.route.flush=1"
-  when: grep_output.stdout == "net.ipv4.ip_forward = 1"
+  when: grep_output.stdout == "net.ipv4.ip_forward = 1" and network.disable_ip_forwarding
 
 
 
@@ -39,11 +40,12 @@
   with_items:
     - { regexp: 'net.ipv4.conf.all.send_redirects',  line: 'net.ipv4.conf.all.send_redirects = 0' }
     - { regexp: 'net.ipv4.conf.default.send_redirects',  line: 'net.ipv4.conf.default.send_redirects = 0' }
+  when: network.disable_packet_redirect
   become: yes
 
 - name: Disabling packet redirect sending
   shell : "sysctl -w net.ipv4.conf.all.send_redirects=0 &&
            sysctl -w net.ipv4.conf.default.send_redirects=0 &&
            sysctl -w net.ipv4.route.flush=1"
-  when: grep_output.stdout == "net.ipv4.conf.all.send_redirects = 1"
+  when: grep_output.stdout == "net.ipv4.conf.all.send_redirects = 1" and network.disable_packet_redirect
   become: yes

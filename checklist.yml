@@ -84,11 +84,13 @@ sshd:
   HostbasedAuthentication: yes
   disable_root_login: yes
 
+
 pam:
   allow_3_tries_before_failure: yes
   set_policy: yes
   lockout_failed_attempts: yes
   password_reuse_limit_and_sha512_as_default: yes
+
 
 services:
   # 2.1 inetd services
@@ -129,4 +131,27 @@ services:
   uninstall_telnet: yes
   uninstall_openldap-clients: yes
 
-  
+
+network:
+  # IPV4
+  disable_ip_forwarding: yes
+  disable_packet_redirect: yes
+
+  # IPV6
+  ignore_router_advertisements_ipv6: yes
+  ignore_packet_redirect_ipv6: yes
+  deactivate_ipv6: yes
+
+  # Uncommon network protocols
+  disable_dccp: yes
+  disable_sctp: yes
+  disable_rds: yes
+  disable_tipc: yes
+
+  # firewall
+  install_iptables: yes
+  configure_loopback_traffic: yes
+
+  # tcp wrappers
+  install_tcp_wrappers: yes
+  configure_outbound_established_connections: yes

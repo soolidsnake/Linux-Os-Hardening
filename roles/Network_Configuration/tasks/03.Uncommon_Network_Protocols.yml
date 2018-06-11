@@ -13,6 +13,7 @@
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install dccp'
     line: 'install dccp /bin/true'
+  when: network.disable_dccp
   become: yes
 
 
@@ -21,6 +22,7 @@
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install sctp'
     line: 'install sctp /bin/true'
+  when: network.disable_sctp
   become: yes
 
 
@@ -29,6 +31,7 @@
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install rds'
     line: 'install rds /bin/true'
+  when: network.disable_rds
   become: yes
 
 
@@ -37,4 +40,5 @@
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install tipc'
     line: 'install tipc /bin/true'
+  when: network.disable_tipc
   become: yes
