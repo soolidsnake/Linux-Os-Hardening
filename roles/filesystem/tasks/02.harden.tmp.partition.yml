@@ -35,7 +35,7 @@
 # Create a hardened tmp partition
 - block: 
   # - name: Create an image file for the tmp partition (This may take a while)
-  - name: Create a the tmp partition
+  - name: Create a hardned tmp partition
     shell: /bin/dd if=/dev/zero of=/tmp_partition.bin bs=512 count=2097152
     tags: [print_action]
 
@@ -143,9 +143,6 @@
     tags: [print_action]
 
   when: tmp_partition is defined 
-        # and ("nosuid" not in tmp_partition.options 
-        # or "nodev" not in tmp_partition.options
-        # or "noexec" not in tmp_partition.options)
   become: yes
 
 

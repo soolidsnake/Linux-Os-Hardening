@@ -39,6 +39,7 @@
     fstype: tmpfs
     opts: "{{mount_options}}"
     state: mounted
+  tags: [print_action]
 
   become: yes
 

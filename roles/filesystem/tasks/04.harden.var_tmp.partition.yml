@@ -12,14 +12,10 @@
 
 # Set the wanted paramaters into a variable.
 - block:
-  - debug: msg="{{mount_options}}"
-
   - name: Empty the fact mount_options
     set_fact:
       mount_options: ""
   
-  - debug: msg="{{mount_options}}"
-
   - name: Setting the parameter nodev
     set_fact:
       mount_options: "nodev"
@@ -42,7 +38,7 @@
 
 # Create a hardened tmp partition
 - block: 
-  - name: Create a hardned the /var/tmp partition
+  - name: Create a hardned /var/tmp partition
     shell: /bin/dd if=/dev/zero of=/var_tmp_partition.bin bs=512 count=2097152
     tags: [print_action]
 

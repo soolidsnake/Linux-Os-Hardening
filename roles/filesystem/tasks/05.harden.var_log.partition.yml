@@ -9,12 +9,6 @@
   when: "item.mount=='/var/log'"
   no_log: yes
 
-# - name: Tell the user that this partition should be hardend manually
-#   debug: msg="It is too dangerous to create and mount the /var/log partition automatically from here,
-#               You should manually log into that machine and perform the operation from single user mode. 
-#               A script will be generated that will let you create and mount /var/log partition properly and manually."
-
-#   when: var_log_partition is not defined
 
 - set_fact:
     manual_patch: "{{manual_patch}} + ['|1.1.11| Ensure separate partition exists for /var/log']" 
