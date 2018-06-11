@@ -5,6 +5,7 @@
     yum:
       name: ypbind
       state: absent
+    when: services.uninstall_ypbind
 
 
 
@@ -12,25 +13,29 @@
     yum:
       name: rsh
       state: absent
+    when: services.uninstall_rsh
 
 
   - name: Ensure talk is not installed
     yum:
       name: talk
       state: absent
+    when: services.uninstall_talk
 
 
   - name: Ensure telnet is not installed
     yum:
       name: telnet
       state: absent
+    when: services.uninstall_telnet
 
 
   - name: Ensure openldap-clients is not installed
     yum:
       name: openldap-clients
       state: absent
-
+    when: services.uninstall_openldap-clients
+    
 
   become: yes
   when: ansible_os_family=='RedHat'
@@ -44,31 +49,35 @@
     apt:
       name: ypbind
       state: absent
-
+    when: services.uninstall_ypbind
 
 
   - name: Ensure rsh is not installed
     apt:
       name: rsh
       state: absent
+    when: services.uninstall_rsh
 
 
   - name: Ensure talk is not installed
     apt:
       name: talk
       state: absent
+    when: services.uninstall_talk
 
 
   - name: Ensure telnet is not installed
     apt:
       name: telnet
       state: absent
+    when: services.uninstall_telnet
 
 
   - name: Ensure openldap-clients is not installed
     apt:
       name: openldap-clients
       state: absent
+    when: services.uninstall_openldap-clients
 
 
   become: yes

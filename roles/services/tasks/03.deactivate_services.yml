@@ -5,7 +5,7 @@
     yum:
       shell: yum remove xorg-x11*
       update_cache: yes    
-    when: ansible_os_family=='RedHat'
+    when: ansible_os_family=='RedHat' and services.disable_x_windows
 
 
 
@@ -13,7 +13,7 @@
     yum:
       shell: apt-get remove xserver-xorg*
       update_cache: yes
-    when: ansible_os_family=='Debian'
+    when: ansible_os_family=='Debian' and services.disable_x_windows
 
 
 
@@ -24,9 +24,9 @@
     ignore_errors: yes
     changed_when: no
 
-  - name: Disable vahi Server
+  - name: Disable avahi Server
     shell: "systemctl disable avahi-daemon"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_avahi_server
 
 
 
@@ -39,7 +39,7 @@
 
   - name: Disable CUPS
     shell: "systemctl disable cups"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_cups
 
 
 
@@ -52,7 +52,7 @@
 
   - name: Disable DHCP Server
     shell: "systemctl disable dhcpd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_dhcp_server
 
 
 
@@ -65,7 +65,7 @@
 
   - name: Disable LDAP Server
     shell: "systemctl disable slapd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_ldap_server
 
 
 
@@ -76,9 +76,9 @@
     ignore_errors: yes
     changed_when: no
 
-  - name: Disable nfs Server
+  - name: Disable NFS Server
     shell: "systemctl disable nfs"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_nfs
 
 
 
@@ -91,7 +91,7 @@
 
   - name: Disable NFS Server
     shell: "systemctl disable nfs-server"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_nfs_server
 
 
   - name: Ensure RPC is not enabled
@@ -103,7 +103,7 @@
 
   - name: Disable RPC Server
     shell: "systemctl disable nfs-rpcbind"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_rpc
 
 
   - name: Ensure DNS server is not enabled
@@ -115,7 +115,7 @@
 
   - name: Disable DNS Server
     shell: "systemctl disable named"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_dns_server
 
 
 
@@ -128,7 +128,7 @@
 
   - name: Disable FTP Server
     shell: "systemctl disable vsftpd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_ftp_server
 
 
 
@@ -141,7 +141,7 @@
 
   - name: Disable HTTP Server
     shell: "systemctl disable httpd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_http_server
 
 
   - name: Ensure IMAP and POP3 is not enabled
@@ -153,7 +153,7 @@
 
   - name: Disable IMAP and POP3 Server
     shell: "systemctl disable dovecot"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_imap_pop3
 
 
   - name: Ensure HTTP Proxy is not enabled
@@ -165,7 +165,7 @@
 
   - name: Disable HTTP Proxy Server
     shell: "systemctl disable squid"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_http_proxy_server
 
 
   - name: Ensure SNMP is not enabled
@@ -177,7 +177,7 @@
 
   - name: Disable SNMP Server
     shell: "systemctl disable snmpd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_snmp
 
 
 
@@ -190,7 +190,7 @@
 
   - name: Disable NIS Server
     shell: "systemctl disable ypserv"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_nis
 
 
 
@@ -203,7 +203,7 @@
 
   - name: Disable Samba Server
     shell: "systemctl disable smb"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_samba_server
     
 
   - name: Ensure talk Server is not enabled
@@ -215,7 +215,7 @@
 
   - name: Disable talk Server
     shell: "systemctl disable ntalk"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_talk_server
 
 
   - name: Ensure TELNET Server is not enabled
@@ -227,7 +227,7 @@
 
   - name: Disable TELNET Server
     shell: "systemctl disable telnet.socket"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_telnet_server
 
 
   - name: Ensure TFTP Server is not enabled
@@ -239,7 +239,7 @@
 
   - name: Disable TFTP Server
     shell: "systemctl disable tftp.socket"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_tftp_server
 
 
   - name: Ensure rsync service is not enabled
@@ -251,4 +251,4 @@
 
   - name: Disable rsync service Server
     shell: "systemctl disable rsyncd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_rsync

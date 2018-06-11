@@ -87,6 +87,43 @@ pam:
   lockout_failed_attempts: yes
   password_reuse_limit_and_sha512_as_default: yes
 
+services:
+  # 2.1 inetd services
+  disable_chargen_service: yes
+  disable_daytime_service: yes
+  disable_discard_service: yes
+  disable_echo_service: yes
+  disable_time_service: yes
+  disable_tftp_service: yes
+  disable_xinetd_service: yes
 
+  # 2.2 server services (special purpose services)
+  disable_x_windows: yes
+  disable_avahi_server: yes
+  disable_cups: yes
+  disable_dhcp_server: yes
+  disable_ldap_server: yes
+  disable_nfs: yes
+  disable_nfs_server: yes
+  disable_rpc: yes
+  disable_dns_server: yes
+  disable_ftp_server: yes
+  disable_http_server: yes
+  disable_imap_pop3: yes
+  disable_http_proxy_server: yes
+  disable_snmp: yes
+  disable_nis: yes
+  disable_samba_server: yes
+  disable_talk_server: yes
+  disable_telnet_server: yes
+  disable_tftp_server: yes
+  disable_rsync: yes
+  
+  # 2.3 services client
+  uninstall_ypbind: yes
+  uninstall_rsh: yes
+  uninstall_talk: yes
+  uninstall_telnet: yes
+  uninstall_openldap-clients: yes
 
-
+  

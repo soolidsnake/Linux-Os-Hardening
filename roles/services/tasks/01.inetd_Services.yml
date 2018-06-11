@@ -10,7 +10,7 @@
   - name: Disable chargen services
     shell: "chkconfig chargen-dgram off &&
             chkconfig chargen-stream off"
-    when: (chkconfig_output.stdout in "chargen-dgram\":\" on" or chkconfig_output.stdout in "chargen-stream\":\" on") 
+    when: (chkconfig_output.stdout in "chargen-dgram\":\" on" or chkconfig_output.stdout in "chargen-stream\":\" on") and services.disable_chargen_service  
 
 
 
@@ -24,7 +24,7 @@
   - name: Disable daytime services
     shell: "chkconfig daytime-dgram off &&
             chkconfig daytime-stream off"
-    when: (chkconfig_output.stdout in "daytime-dgram\":\" on" or chkconfig_output.stdout in "daytime-stream\":\" on") 
+    when: (chkconfig_output.stdout in "daytime-dgram\":\" on" or chkconfig_output.stdout in "daytime-stream\":\" on") and services.disable_daytime_service 
 
 
 
@@ -38,7 +38,7 @@
   - name: Disable discard services
     shell: "chkconfig discard-dgram off &&
             chkconfig discard-stream off"
-    when: (chkconfig_output.stdout in "discard-dgram\":\" on" or chkconfig_output.stdout in "discard-stream\":\" on") 
+    when: (chkconfig_output.stdout in "discard-dgram\":\" on" or chkconfig_output.stdout in "discard-stream\":\" on") and services.disable_discard_service 
 
 
 
@@ -52,7 +52,7 @@
   - name: Disable echo services
     shell: "chkconfig echo-dgram off &&
             chkconfig echo-stream off"
-    when: (chkconfig_output.stdout in "echo-dgram\":\" on" or chkconfig_output.stdout in "echo-stream\":\" on") 
+    when: (chkconfig_output.stdout in "echo-dgram\":\" on" or chkconfig_output.stdout in "echo-stream\":\" on") and services.disable_echo_service
 
 
 
@@ -66,7 +66,7 @@
   - name: Disable time services
     shell: "chkconfig time-dgram off &&
             chkconfig time-stream off"
-    when: (chkconfig_output.stdout in "time-dgram\":\" on" or chkconfig_output.stdout in "time-stream\":\" on") 
+    when: (chkconfig_output.stdout in "time-dgram\":\" on" or chkconfig_output.stdout in "time-stream\":\" on")  and services.disable_time_service
 
 
 
@@ -79,7 +79,7 @@
 
   - name: Disable tftp services
     shell: "chkconfig tftp off"
-    when: (chkconfig_output.stdout in "tftp-dgram\":\" on" or chkconfig_output.stdout in "tftp-stream\":\" on") 
+    when: (chkconfig_output.stdout in "tftp-dgram\":\" on" or chkconfig_output.stdout in "tftp-stream\":\" on")  and services.disable_tftp_service
 
 
 
@@ -92,7 +92,7 @@
 
   - name: Disable xinetd services
     shell: "systemctl disable xinetd"
-    when: systemctl_output.stdout != disabled
+    when: systemctl_output.stdout != disabled and services.disable_xinetd_service
   become: yes
   when: ansible_os_family=='RedHat'
 
@@ -112,7 +112,7 @@
   - name: Disable chargen services
     shell: "chkconfig chargen-dgram off &&
             chkconfig chargen-stream off"
-    when: grep_output.rc == 0 
+    when: grep_output.rc == 0 and services.disable_chargen_service
 
 
 
@@ -126,7 +126,7 @@
   - name: Disable daytime services
     shell: "chkconfig daytime-dgram off &&
             chkconfig daytime-stream off"
-    when: grep_output.rc == 0 
+    when: grep_output.rc == 0 and services.disable_daytime_service
 
 
 
@@ -140,7 +140,7 @@
   - name: Disable discard services
     shell: "chkconfig discard-dgram off &&
             chkconfig discard-stream off"
-    when: grep_output.rc == 0 
+    when: grep_output.rc == 0 and services.disable_discard_service
 
 
 
@@ -154,7 +154,7 @@
   - name: Disable echo services
     shell: "chkconfig echo-dgram off &&
             chkconfig echo-stream off"
-    when: grep_output.rc == 0 
+    when: grep_output.rc == 0 and services.disable_echo_service
 
 
 
@@ -168,7 +168,7 @@
   - name: Disable time services
     shell: "chkconfig time-dgram off &&
             chkconfig time-stream off"
-    when: grep_output.rc == 0 
+    when: grep_output.rc == 0 and services.disable_time_service
 
 
 
@@ -181,7 +181,7 @@
 
   - name: Disable tftp services
     shell: "chkconfig tftp off"
-    when: grep_output.rc == 0 
+    when: grep_output.rc == 0 and services.disable_tftp_service
 
 
 
@@ -194,6 +194,7 @@
 
   - name: Disable xinetd services
     shell: "systemctl disable xinetd"
-    when: systemctl_output.stdout != "disabled"
+    when: systemctl_output.stdout != "disabled" and services.disable_xinetd_service
+    
   become: yes
   when: ansible_os_family=='Debian'
