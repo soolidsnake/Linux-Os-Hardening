@@ -1,9 +1,10 @@
+---
 # My example
 filesystem:
   # 1.1.1.1 
   disable_cramfs_filesystem: yes
   # 1.1.1.2 
-  disable_freevxfs_filesystem: no
+  disable_freevxfs_filesystem: yes
   # 1.1.1.3 
   disable_jffs2_filesystem: yes
   # 1.1.1.4 
@@ -15,61 +16,63 @@ filesystem:
   # 1.1.1.7 
   disable_udf_filesystem: yes
   # 1.1.1.8 
-  disable_vfat_filesystem: no
+  disable_vfat_filesystem: yes
 
   # 1.1.2
-  tmp_partition_create: yes
+  tmp_partition_create: no
   # 1.1.3
   tmp_partition_nodev: yes
   # 1.1.4
   tmp_partition_nosuid: yes
   # 1.1.5
-  tmp_partition_noexec: yes
-
-  #1.1.6
-  var_partition_create: yes
+  tmp_partition_noexec: no
 
   # 1.1.7
   var_tmp_partition_create: yes
   # 1.1.8
-  var_tmp_partition_nodev: yes
+  var_tmp_partition_nodev: no
   # 1.1.9
   var_tmp_partition_nosuid: yes
   # 1.1.10
   var_tmp_partition_noexec: yes
 
-  #1.1.11
-  var_log_partition_create: yes
-
-  #1.1.12
-  var_log_audit_partition_create: yes
-
-  #1.1.13
-  home_partition_create: yes
   #1.1.14
-  home_partition_nodev: yes
+  home_partition_nodev: no
 
   #1.1.15
-  dev_shm_nodev: yes
+  dev_shm_nodev: no
   #1.1.16
   dev_shm_nosuid: yes
   #1.1.17
-  dev_shm_noexec: yes
+  dev_shm_noexec: no
 
   #1.1.18
   removable_medias_nodev: yes
   #1.1.19
-  removable_medias_nosuid: yes
+  removable_medias_nosuid: no
   #1.1.20
   removable_medias_noexec: yes
 
   #1.1.21
   sticky_bit_world_writable_dirs: yes
 
-  #1.1.22
-  disable_automounting: yes
+
+integr_check:
+  #1.3.1
+  install_aide: yes
+  #1.3.2
+  regular_check: yes
 
 
+auditd:
+  install: yes
+  # 4.1.1.1
+  configure_log_storage_size: yes
+  # 4.1.1.2
+  disable_system: yes
+  # 4.1.2
+  enable_service: yes
+# Your example.
 sshd:
   # This will be hardened. You have to do a check in your task to this variable.
   # The check in the task is done like this : when: sshd.protocole_version_2
