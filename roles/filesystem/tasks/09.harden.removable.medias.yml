@@ -1,2 +1,105 @@
 ---
-# I need to think how to do this later.
+
+# 1.1.18 | 1.1.19 | 1.1.20 ============================================================================================
+
+- name: Init facts
+  set_fact:
+    removable_partitions: []
+
+- name: Detect removable medias
+  set_fact:
+    removable_partitions: "{{ removable_partitions + [item] }}"
+  with_items: "{{ansible_mounts}}"
+  when: item.mount is search("^/media|^/mnt")
+  no_log: yes
+
+
+# Set the wanted paramaters into a variable.
+- block:
+  - name: Empty the fact mount_options
+    set_fact:
+      mount_options: ""
+  
+  - name: Setting the parameter nodev
+    set_fact:
+      mount_options: "nodev"
+    when: filesystem.removable_medias_nodev
+
+  - name: Setting the parameter nosuid
+    set_fact:
+      mount_options: "{{ 'nosuid' if mount_options is not defined else mount_options + ',' + 'nosuid' }}"
+    when: filesystem.removable_medias_nosuid
+
+  - name: Setting the parameter noexec
+    set_fact:
+      mount_options: "{{ 'noexec' if mount_options is not defined else mount_options + ',' + 'noexec' }}"
+    when: filesystem.removable_medias_noexec
+
+  - name: Setting extra parameters
+    set_fact:
+      mount_options: "{{ 'rw,relatime' if mount_options is not defined else 'rw,' + mount_options + ',relatime' }}"
+
+
+# Harden removable medias
+- name: Remount the removable medias with the proper options
+  mount: 
+    path: "{{item.mount}}"
+    src: "{{item.device}}"
+    fstype: "{{item.fstype}}"
+    opts: "{{mount_options}}"
+    state: mounted
+  tags: [print_action]
+  with_items: "{{removable_partitions}}"
+  no_log: true
+  become: yes
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.8| Ensure nodev option set on {{item.device}} (uuid={{item.uuid}}) partition']"
+    when: not filesystem.removable_medias_nodev
+    with_items: "{{removable_partitions}}"
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.8| Ensure nodev option set on {{item.device}} (uuid={{item.uuid}}) partition']" 
+    when: "filesystem.removable_medias_nodev and 'nodev' in item.options"
+    with_items: "{{removable_partitions}}"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.8| Ensure nodev option set on {{item.device}} (uuid={{item.uuid}}) partition']" 
+    when: "filesystem.removable_medias_nodev and 'nodev' not in item.options"
+    with_items: "{{removable_partitions}}"
+
+
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.9| Ensure nosuid option set on {{item.device}} (uuid={{item.uuid}}) partition']"
+    when: not filesystem.removable_medias_nosuid
+    with_items: "{{removable_partitions}}"
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.9| Ensure nosuid option set on {{item.device}} (uuid={{item.uuid}}) partition']" 
+    when: "filesystem.removable_medias_nosuid and 'nosuid' in item.options"
+    with_items: "{{removable_partitions}}"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.9| Ensure nosuid option set on {{item.device}} (uuid={{item.uuid}}) partition']" 
+    when: "filesystem.removable_medias_nosuid and 'nosuid' not in item.options"
+    with_items: "{{removable_partitions}}"
+  
+
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.1.10| Ensure noexec option set on {{item.device}} (uuid={{item.uuid}}) partition']"
+    when: not filesystem.removable_medias_noexec
+    with_items: "{{removable_partitions}}"
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.1.10| Ensure noexec option set on {{item.device}} (uuid={{item.uuid}}) partition']" 
+    when: "filesystem.removable_medias_noexec and 'noexec' in item.options"
+    with_items: "{{removable_partitions}}"
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.1.10| Ensure noexec option set on {{item.device}} (uuid={{item.uuid}}) partition']" 
+    when: "filesystem.removable_medias_noexec and 'noexec' not in item.options"
+    with_items: "{{removable_partitions}}"
+  
+  no_log: true
