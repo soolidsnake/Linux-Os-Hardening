@@ -1,10 +1,19 @@
 ---
 
 - block:
-  - name: Ensure X Window System is not installedp
+  - name: Ensure X Window System is not installedp RedHat
     yum:
       shell: yum remove xorg-x11*
+      update_cache: yes    
+    when: ansible_os_family=='RedHat'
+
+
+
+  - name: Ensure X Window System is not installedp Debian
+    yum:
+      shell: apt-get remove xserver-xorg*
       update_cache: yes
+    when: ansible_os_family=='Debian'
 
 
 
@@ -60,6 +69,131 @@
 
 
 
+  - name: Ensure NFS is not enabled
+    shell: systemctl is-enabled nfs
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable nfs Server
+    shell: "systemctl disable nfs"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure NFS Server is not enabled
+    shell: systemctl is-enabled nfs-server
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable NFS Server
+    shell: "systemctl disable nfs-server"
+    when: systemctl_output.stdout != disabled
+
+
+  - name: Ensure RPC is not enabled
+    shell: systemctl is-enabled rpcbind
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable RPC Server
+    shell: "systemctl disable nfs-rpcbind"
+    when: systemctl_output.stdout != disabled
+
+
+  - name: Ensure DNS server is not enabled
+    shell: systemctl is-enabled named
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable DNS Server
+    shell: "systemctl disable named"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure FTP server is not enabled
+    shell: systemctl is-enabled vsftpd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable FTP Server
+    shell: "systemctl disable vsftpd"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure HTTP is not enabled
+    shell: systemctl is-enabled httpd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable HTTP Server
+    shell: "systemctl disable httpd"
+    when: systemctl_output.stdout != disabled
+
+
+  - name: Ensure IMAP and POP3 is not enabled
+    shell: systemctl is-enabled dovecot
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable IMAP and POP3 Server
+    shell: "systemctl disable dovecot"
+    when: systemctl_output.stdout != disabled
+
+
+  - name: Ensure HTTP Proxy is not enabled
+    shell: systemctl is-enabled squid 
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable HTTP Proxy Server
+    shell: "systemctl disable squid"
+    when: systemctl_output.stdout != disabled
+
+
+  - name: Ensure SNMP is not enabled
+    shell: systemctl is-enabled snmpd
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable SNMP Server
+    shell: "systemctl disable snmpd"
+    when: systemctl_output.stdout != disabled
+
+
+
+  - name: Ensure NIS is not enabled
+    shell: systemctl is-enabled ypserv
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable NIS Server
+    shell: "systemctl disable ypserv"
+    when: systemctl_output.stdout != disabled
+
+
+
   - name: Ensure Samba Server is not enabled
     shell: systemctl is-enabled smb
     register: systemctl_output
@@ -71,85 +205,50 @@
     shell: "systemctl disable smb"
     when: systemctl_output.stdout != disabled
     
-  when: ansible_os_family=='RedHat'
 
-
-
-
-
-
-
-
-
-- block:
-  - name: Ensure X Window System is not installedp
-    yum:
-      shell: yum remove xorg-x11*
-      update_cache: yes
-
-
-
-  - name: Ensure Avahi Server is not enabled
-    shell: systemctl is-enabled avahi-daemon
+  - name: Ensure talk Server is not enabled
+    shell: systemctl is-enabled ntalk
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
 
-  - name: Disable vahi Server
-    shell: "systemctl disable avahi-daemon"
+  - name: Disable talk Server
+    shell: "systemctl disable ntalk"
     when: systemctl_output.stdout != disabled
 
 
-
-  - name: Ensure CUPS is not enabled
-    shell: systemctl is-enabled cups
+  - name: Ensure TELNET Server is not enabled
+    shell: systemctl is-enabled telnet.socket
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
 
-  - name: Disable CUPS
-    shell: "systemctl disable cups"
+  - name: Disable TELNET Server
+    shell: "systemctl disable telnet.socket"
     when: systemctl_output.stdout != disabled
 
 
-
-  - name: Ensure DHCP Server is not enabled
-    shell: systemctl is-enabled dhcpd
+  - name: Ensure TFTP Server is not enabled
+    shell: systemctl is-enabled tftp.socket
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
 
-  - name: Disable DHCP Server
-    shell: "systemctl disable dhcpd"
+  - name: Disable TFTP Server
+    shell: "systemctl disable tftp.socket"
     when: systemctl_output.stdout != disabled
 
 
-
-  - name: Ensure LDAP Server is not enabled
-    shell: systemctl is-enabled slapd
+  - name: Ensure rsync service is not enabled
+    shell: systemctl is-enabled rsyncd
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
 
-  - name: Disable LDAP Server
-    shell: "systemctl disable slapd"
+  - name: Disable rsync service Server
+    shell: "systemctl disable rsyncd"
     when: systemctl_output.stdout != disabled
-
-
-
-  - name: Ensure Samba Server is not enabled
-    shell: systemctl is-enabled smb
-    register: systemctl_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable Samba Server
-    shell: "systemctl disable smb"
-    when: systemctl_output.stdout != disabled
-    
-  when: ansible_os_family=='Debian'
