@@ -42,12 +42,10 @@
 
 # Harden removable medias
 - name: Remount the removable medias with the proper options
-  mount: 
-    path: "{{item.mount}}"
-    src: "{{item.device}}"
-    fstype: "{{item.fstype}}"
-    opts: "{{mount_options}}"
-    state: mounted
+  shell: "mount -o remount,{{mount_options}} {{item.mount}}"
+  args: 
+    warn: False
+
   tags: [print_action]
   with_items: "{{removable_partitions}}"
   no_log: true
