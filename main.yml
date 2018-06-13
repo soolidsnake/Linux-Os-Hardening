@@ -7,13 +7,14 @@
   - checklist.yml
 
   roles:
+  - init.logging.facts
   #- {role: filesystem, tags: [harden_level2]}
   #- sshd # redhat && debian
   #- pam
   #- system_maintenance # redhat && debian
   #- cron # redhat && debian
   #- Network_Configuration # redhat && debian
-  # - services
+  - services
   #- filesystem
   #- pam
   #- system_maintenance
@@ -25,7 +26,6 @@
   # - warning.banners
   # - update.and.patch
   # - additional.process.hardening
-  - init.logging.facts
   # - filesystem
-  - log.and.audit
+  #- log.and.audit
   - save.logging.facts

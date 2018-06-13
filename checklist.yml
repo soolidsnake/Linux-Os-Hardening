@@ -193,7 +193,7 @@ services:
   uninstall_rsh: yes
   uninstall_talk: yes
   uninstall_telnet: yes
-  uninstall_openldap-clients: yes
+  uninstall_openldap_clients: yes
 
 
 network:
