@@ -8,6 +8,7 @@
   changed_when: no
 
 - name: Disabling IPv6 router advertisements permanently
+  register: change_state
   lineinfile:
     path: "/etc/sysctl.conf"
     regexp: "{{ item.regexp }}"
@@ -15,16 +16,31 @@
   with_items:
     - { regexp: 'net.ipv6.conf.all.accept_ra',  line: 'net.ipv6.conf.all.accept_ra = 0' }
     - { regexp: 'net.ipv6.conf.default.accept_ra',  line: 'net.ipv6.conf.default.accept_ra = 0' }
-  when: network.ignore_router_advertisements_ipv6
+  when: grep_output.stdout == "net.ipv6.conf.all.accept_ra = 1" and network.ignore_router_advertisements_ipv6
   become: yes
 
 - name: Disable IPv6 router advertisements
   shell : "sysctl -w net.ipv6.conf.all.accept_ra=0    &&
            sysctl -w net.ipv6.conf.default.accept_ra=0 &&
            sysctl -w net.ipv6.route.flush=1"
-  when: grep_output.stdout == 1 and network.ignore_router_advertisements_ipv6
+  when: grep_output.stdout == "net.ipv6.conf.all.accept_ra = 1" and network.ignore_router_advertisements_ipv6
 
 
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
+    when: change_state.changed and network.ignore_router_advertisements_ipv6
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
+    when: not change_state.changed and network.ignore_router_advertisements_ipv6
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
+    when: not network.ignore_router_advertisements_ipv6
 
 
 
@@ -36,6 +52,7 @@
   changed_when: no
 
 - name: Disabling IPv6 redirects permanently
+  register: change_state
   lineinfile:
     path: "/etc/sysctl.conf"
     regexp: "{{ item.regexp }}"
@@ -43,20 +60,37 @@
   with_items:
     - { regexp: 'net.ipv6.conf.all.accept_redirects',  line: 'net.ipv6.conf.all.accept_redirects = 0' }
     - { regexp: 'net.ipv6.conf.default.accept_redirects',  line: 'net.ipv6.conf.default.accept_redirects = 0' }
-  when: network.ignore_packet_redirect_ipv6
+  when: grep_output.stdout == "net.ipv6.conf.all.accept_redirects = 1" and network.ignore_packet_redirect_ipv6
   become: yes
 
 - name: Disable IPv6 redirects
   shell : "sysctl -w net.ipv6.conf.all.accept_redirects=0    &&
            sysctl -w net.ipv6.conf.default.accept_redirects=0 &&
            sysctl -w net.ipv6.route.flush=1"
-  when: grep_output.stdout == 1 and network.ignore_packet_redirect_ipv6
+  when: grep_output.stdout == "net.ipv6.conf.all.accept_redirects = 1" and network.ignore_packet_redirect_ipv6
+
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']" 
+    when: change_state.changed and network.ignore_packet_redirect_ipv6
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']"
+    when: not change_state.changed and network.ignore_packet_redirect_ipv6
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']"
+    when: not network.ignore_packet_redirect_ipv6
 
 
 
 
-
-- name: deactivate IPV6
+- name: Ensure IPv6 is disabled
+  register: change_state
   lineinfile:
     path: "/etc/default/grub"
     regexp: "{{ item.regexp }}"
@@ -64,9 +98,25 @@
   with_items:
     - { regexp: 'GRUB_CMDLINE_LINUX',  line: 'GRUB_CMDLINE_LINUX="ipv6.disable=1"' }
   become: yes
-  when: deactivate_ipv6 == "yes" and network.deactivate_ipv6
+  when: network.deactivate_ipv6
 
 - name: update grub
   shell: "update-grub"
   become: yes
-  when: deactivate_ipv6 == "yes" and network.deactivate_ipv6
+  when:  network.deactivate_ipv6
+
+  
+    #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.3.3| Ensure IPv6 is disabled']" 
+    when: change_state.changed and network.deactivate_ipv6
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.3.3| Ensure IPv6 is disabled']" 
+    when: not change_state.changed and network.deactivate_ipv6
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.3.3| Ensure IPv6 is disabled']" 
+    when: not network.deactivate_ipv6

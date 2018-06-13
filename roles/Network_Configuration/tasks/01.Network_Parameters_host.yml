@@ -7,18 +7,40 @@
   ignore_errors: yes
   changed_when: no
 
+- debug: msg={{grep_output}}
+
 - name: Disabling IP forwarding permanently
+  register: change_state
   lineinfile:
     path: "/etc/sysctl.conf"
     regexp: 'net.ipv4.ip_forward'
     line: 'net.ipv4.ip_forward = 0'
-  when: network.disable_ip_forwarding
   become: yes
+  when: grep_output.stdout == "net.ipv4.ip_forward = 1" and network.disable_ip_forwarding
+  
 
 - name: Disable IP forwarding
   shell : "sysctl -w net.ipv4.ip_forward=0 && 
            sysctl -w net.ipv4.route.flush=1"
+  become: yes
   when: grep_output.stdout == "net.ipv4.ip_forward = 1" and network.disable_ip_forwarding
+
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.1.1| Ensure IP forwarding is disabled']" 
+  when: change_state.changed and network.disable_ip_forwarding
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.1.1| Ensure IP forwarding is disabled']" 
+  when: not change_state.changed and network.disable_ip_forwarding
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.1.1| Ensure IP forwarding is disabled']" 
+  when: not network.disable_ip_forwarding
 
 
 
@@ -49,3 +71,19 @@
            sysctl -w net.ipv4.route.flush=1"
   when: grep_output.stdout == "net.ipv4.conf.all.send_redirects = 1" and network.disable_packet_redirect
   become: yes
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.1.2| Ensure packet redirect sending is disabled']" 
+  when: change_state.changed and network.disable_packet_redirect
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.1.2| Ensure packet redirect sending is disabled']" 
+  when: not change_state.changed and network.disable_packet_redirect
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.1.2| Ensure packet redirect sending is disabled']" 
+  when: not network.disable_packet_redirect
