@@ -1,19 +1,57 @@
 # These tasks need to be tested with a good connection
 ---
-- name: Update system packages
+
+# 1.8 =================================================================================================================
+
+- name: Update system packages on Debian based distros
   apt: 
     upgrade: safe
     update_cache: yes
 
+  register: apt_result
   become: yes
+  when: update_patch and ansible_pkg_mgr=='apt'
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.8| Ensure updates, patches, and additional security software are installed']"
+    when: not update_patch
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.8| Ensure updates, patches, and additional security software are installed']" 
+    when: update_patch and not apt_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.8| Ensure updates, patches, and additional security software are installed']" 
+    when: update_patch and apt_result.changed
+
   when: ansible_pkg_mgr=='apt'
 
-- name: Update system packages
+
+- name: Update system packages on RedHat based distros
   yum: 
     name: '*'
     update_cache: yes
     state: latest
     # security: yes
 
+  register: yum_result
   become: yes
+  failed_when: false
   when: ansible_pkg_mgr=='yum'
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.8| Ensure updates, patches, and additional security software are installed']"
+    when: not update_patch
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.8| Ensure updates, patches, and additional security software are installed']" 
+    when: update_patch and not yum_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.8| Ensure updates, patches, and additional security software are installed']" 
+    when: update_patch and yum_result.changed
+
+  when: ansible_pkg_mgr=='yum'
+

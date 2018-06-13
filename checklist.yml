@@ -83,6 +83,10 @@ warn_banner:
   #1.7.2
   gdm: yes
 
+
+#1.8
+update_patch: yes
+
 auditd:
   install: yes
   # 4.1.1.1
