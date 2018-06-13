@@ -92,7 +92,7 @@ auditd:
   # 4.1.2
   enable_service: yes
 # Your example.
-sshd:
+ssh:
   # This will be hardened. You have to do a check in your task to this variable.
   # The check in the task is done like this : when: sshd.protocole_version_2
   protocole_version_2: yes
@@ -100,18 +100,18 @@ sshd:
   log_level_info: no
   disable_x11_forwarding: yes
   enable_IgnoreRhosts: yes
-  HostbasedAuthentication: yes
-  disable_root_login: yes
-  ssh_limit: yes
+  disable_HostbasedAuthentication: yes
+  disable_root_login: no
+  ssh_limit: no
   set_ClientAliveInterval_300_and_ClientAliveCountMax_4: yes
-  set_LoginGraceTime_1minute: yes
+  set_LoginGraceTime_1minute: no
 
 
 pam:
-  allow_3_tries_before_failure: yes
-  set_policy: yes
-  lockout_failed_attempts: yes
-  password_reuse_limit_and_sha512_as_default: yes
+  allow_3_tries_before_failure: no
+  set_policy: no
+  lockout_failed_attempts: no
+  password_reuse_limit_and_sha512_as_default: no
 
 
 services:
@@ -126,22 +126,22 @@ services:
 
   # 2.2 server services (special purpose services)
   disable_x_windows: yes
-  disable_avahi_server: yes
+  disable_avahi_server: no
   disable_cups: yes
-  disable_dhcp_server: yes
+  disable_dhcp_server: no
   disable_ldap_server: yes
-  disable_nfs: yes
+  disable_nfs: no
   disable_nfs_server: yes
   disable_rpc: yes
-  disable_dns_server: yes
-  disable_ftp_server: yes
+  disable_dns_server: no
+  disable_ftp_server: no
   disable_http_server: yes
   disable_imap_pop3: yes
   disable_http_proxy_server: yes
   disable_snmp: yes
-  disable_nis: yes
+  disable_nis: no
   disable_samba_server: yes
-  disable_talk_server: yes
+  disable_talk_server: no
   disable_telnet_server: yes
   disable_tftp_server: yes
   disable_rsync: yes
