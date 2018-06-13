@@ -1,107 +1,7 @@
 ---
-- block:
-  - name: check if chargen services are not enabled
-    shell: chkconfig --list
-    register: chkconfig_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable chargen services
-    shell: "chkconfig chargen-dgram off &&
-            chkconfig chargen-stream off"
-    when: (chkconfig_output.stdout in "chargen-dgram\":\" on" or chkconfig_output.stdout in "chargen-stream\":\" on") and services.disable_chargen_service  
-
-
-
-  - name: check if daytime services are not enabled
-    shell: chkconfig --list
-    register: chkconfig_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable daytime services
-    shell: "chkconfig daytime-dgram off &&
-            chkconfig daytime-stream off"
-    when: (chkconfig_output.stdout in "daytime-dgram\":\" on" or chkconfig_output.stdout in "daytime-stream\":\" on") and services.disable_daytime_service 
-
-
-
-  - name: check if discard services are not enabled
-    shell: chkconfig --list
-    register: chkconfig_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable discard services
-    shell: "chkconfig discard-dgram off &&
-            chkconfig discard-stream off"
-    when: (chkconfig_output.stdout in "discard-dgram\":\" on" or chkconfig_output.stdout in "discard-stream\":\" on") and services.disable_discard_service 
-
-
-
-  - name: check if echo services are not enabled
-    shell: chkconfig --list
-    register: chkconfig_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable echo services
-    shell: "chkconfig echo-dgram off &&
-            chkconfig echo-stream off"
-    when: (chkconfig_output.stdout in "echo-dgram\":\" on" or chkconfig_output.stdout in "echo-stream\":\" on") and services.disable_echo_service
-
-
-
-  - name: check if time services are not enabled
-    shell: chkconfig --list
-    register: chkconfig_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable time services
-    shell: "chkconfig time-dgram off &&
-            chkconfig time-stream off"
-    when: (chkconfig_output.stdout in "time-dgram\":\" on" or chkconfig_output.stdout in "time-stream\":\" on")  and services.disable_time_service
-
-
-
-  - name: check if tftp services are not enabled
-    shell: chkconfig --list
-    register: chkconfig_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable tftp services
-    shell: "chkconfig tftp off"
-    when: (chkconfig_output.stdout in "tftp-dgram\":\" on" or chkconfig_output.stdout in "tftp-stream\":\" on")  and services.disable_tftp_service
-
-
-
-  - name: check if xinetd services are not enabled
-    shell: systemctl is-enabled xinetdt
-    register: systemctl_output
-    check_mode: no
-    ignore_errors: yes
-    changed_when: no
-
-  - name: Disable xinetd services
-    shell: "systemctl disable xinetd"
-    when: systemctl_output.stdout != disabled and services.disable_xinetd_service
-  become: yes
-  when: ansible_os_family=='RedHat'
-
-
-
-
-
 
 - block:
+
   - name: check if chargen services are not enabled
     shell: grep -R "^chargen" /etc/inetd.*
     register: grep_output
@@ -109,11 +9,28 @@
     ignore_errors: yes
     changed_when: no
 
+  
+
   - name: Disable chargen services
+    register: change_state
     shell: "chkconfig chargen-dgram off &&
             chkconfig chargen-stream off"
     when: grep_output.rc == 0 and services.disable_chargen_service
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.1| Ensure chargen services are not enabled']" 
+    when: change_state.changed and services.disable_chargen_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.1| Ensure chargen services are not enabled']" 
+    when: not change_state.changed and services.disable_chargen_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.1| Ensure chargen services are not enabled']" 
+    when: not services.disable_chargen_service
 
 
   - name: check if daytime services are not enabled
@@ -124,10 +41,25 @@
     changed_when: no
 
   - name: Disable daytime services
+    register: change_state
     shell: "chkconfig daytime-dgram off &&
             chkconfig daytime-stream off"
     when: grep_output.rc == 0 and services.disable_daytime_service
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.2| Ensure daytime services are not enabled']" 
+    when: change_state.changed and services.disable_daytime_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.2| Ensure daytime services are not enabled']" 
+    when: not change_state.changed and services.disable_daytime_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.2| Ensure daytime services are not enabled']" 
+    when: not services.disable_daytime_service
 
 
   - name: check if discard services are not enabled
@@ -138,11 +70,26 @@
     changed_when: no
 
   - name: Disable discard services
+    register: change_state
     shell: "chkconfig discard-dgram off &&
             chkconfig discard-stream off"
     when: grep_output.rc == 0 and services.disable_discard_service
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.3| Ensure discard services are not enabled']" 
+    when: change_state.changed and services.disable_discard_service
 
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.3| Ensure discard services are not enabled']" 
+    when: not change_state.changed and services.disable_discard_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.3| Ensure discard services are not enabled']" 
+    when: not services.disable_discard_service
+    
 
   - name: check if echo services are not enabled
     shell: grep -R "^echo" /etc/inetd.*
@@ -152,11 +99,26 @@
     changed_when: no
 
   - name: Disable echo services
+    register: change_state
     shell: "chkconfig echo-dgram off &&
             chkconfig echo-stream off"
     when: grep_output.rc == 0 and services.disable_echo_service
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.4| Ensure echo services are not enabled']" 
+    when: change_state.changed and services.disable_echo_service
 
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.4| Ensure echo services are not enabled']" 
+    when: not change_state.changed and services.disable_echo_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.4| Ensure echo services are not enabled']" 
+    when: not services.disable_echo_service
+    
 
   - name: check if time services are not enabled
     shell: grep -R "^time" /etc/inetd.*
@@ -166,10 +128,27 @@
     changed_when: no
 
   - name: Disable time services
+    register: change_state
     shell: "chkconfig time-dgram off &&
             chkconfig time-stream off"
     when: grep_output.rc == 0 and services.disable_time_service
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.5| Ensure time services are not enabled']" 
+    when: change_state.changed and services.disable_time_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.5| Ensure time services are not enabled']" 
+    when: not change_state.changed and services.disable_time_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.5| Ensure time services are not enabled']" 
+    when: not services.disable_time_service
+    
+#add 6-8
 
 
   - name: check if tftp services are not enabled
@@ -180,9 +159,235 @@
     changed_when: no
 
   - name: Disable tftp services
+    register: change_state
     shell: "chkconfig tftp off"
     when: grep_output.rc == 0 and services.disable_tftp_service
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.9| Ensure tftp services are not enabled']" 
+    when: change_state.changed and services.disable_tftp_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.9| Ensure tftp services are not enabled']" 
+    when: not change_state.changed and services.disable_tftp_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.9| Ensure tftp services are not enabled']" 
+    when: not services.disable_tftp_service
+    
+
+  - name: check if xinetd services are not enabled
+    shell: systemctl is-enabled xinetdt
+    register: systemctl_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+  
+
+  - name: Disable xinetd services
+    register: change_state
+    shell: "systemctl disable xinetd"
+    when: not systemctl_output.failed and systemctl_output.stdout != "disabled" and services.disable_xinetd_service
+    
+  - debug : msg={{change_state}}
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.10| Ensure xinetd services are not enabled']" 
+    when: change_state.changed and services.disable_xinetd_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.10| Ensure xinetd services are not enabled']" 
+    when: not change_state.changed and services.disable_xinetd_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.10| Ensure xinetd services are not enabled']" 
+    when: not services.disable_xinetd_service
+    
+
+  become: yes
+  when: ansible_os_family=='Debian'
+
+###########################
+
+- block:
+  - name: check if chargen services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable chargen services
+    register: change_state
+    shell: "chkconfig chargen-dgram off &&
+            chkconfig chargen-stream off"
+    when: (chkconfig_output.stdout in "chargen-dgram\":\" on" or chkconfig_output.stdout in "chargen-stream\":\" on") and services.disable_chargen_service  
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.1| Ensure chargen services are not enabled']" 
+    when: change_state.changed and services.disable_chargen_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.1| Ensure chargen services are not enabled']" 
+    when: not change_state.changed and services.disable_chargen_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.1| Ensure chargen services are not enabled']" 
+    when: not services.disable_chargen_service
+
+
+  - name: check if daytime services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable daytime services
+    register: change_state
+    shell: "chkconfig daytime-dgram off &&
+            chkconfig daytime-stream off"
+    when: (chkconfig_output.stdout in "daytime-dgram\":\" on" or chkconfig_output.stdout in "daytime-stream\":\" on") and services.disable_daytime_service 
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.2| Ensure daytime services are not enabled']" 
+    when: change_state.changed and services.disable_daytime_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.2| Ensure daytime services are not enabled']" 
+    when: not change_state.changed and services.disable_daytime_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.2| Ensure daytime services are not enabled']" 
+    when: not services.disable_daytime_service
+
+
+  - name: check if discard services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable discard services
+    register: change_state
+    shell: "chkconfig discard-dgram off &&
+            chkconfig discard-stream off"
+    when: (chkconfig_output.stdout in "discard-dgram\":\" on" or chkconfig_output.stdout in "discard-stream\":\" on") and services.disable_discard_service 
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.3| Ensure discard services are not enabled']" 
+    when: change_state.changed and services.disable_discard_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.3| Ensure discard services are not enabled']" 
+    when: not change_state.changed and services.disable_discard_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.3| Ensure discard services are not enabled']" 
+    when: not services.disable_discard_service
+
+
+  - name: check if echo services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable echo services
+    register: change_state
+    shell: "chkconfig echo-dgram off &&
+            chkconfig echo-stream off"
+    when: (chkconfig_output.stdout in "echo-dgram\":\" on" or chkconfig_output.stdout in "echo-stream\":\" on") and services.disable_echo_service
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.4| Ensure echo services are not enabled']" 
+    when: change_state.changed and services.disable_echo_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.4| Ensure echo services are not enabled']" 
+    when: not change_state.changed and services.disable_echo_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.4| Ensure echo services are not enabled']" 
+    when: not services.disable_echo_service
+    
+
+  - name: check if time services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable time services
+    register: change_state
+    shell: "chkconfig time-dgram off &&
+            chkconfig time-stream off"
+    when: (chkconfig_output.stdout in "time-dgram\":\" on" or chkconfig_output.stdout in "time-stream\":\" on")  and services.disable_time_service
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.5| Ensure time services are not enabled']" 
+    when: change_state.changed and services.disable_time_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.5| Ensure time services are not enabled']" 
+    when: not change_state.changed and services.disable_time_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.5| Ensure time services are not enabled']" 
+    when: not services.disable_time_service
+
+
+  - name: check if tftp services are not enabled
+    shell: chkconfig --list
+    register: chkconfig_output
+    check_mode: no
+    ignore_errors: yes
+    changed_when: no
+
+  - name: Disable tftp services
+    register: change_state
+    shell: "chkconfig tftp off"
+    when: (chkconfig_output.stdout in "tftp-dgram\":\" on" or chkconfig_output.stdout in "tftp-stream\":\" on")  and services.disable_tftp_service
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.9| Ensure tftp services are not enabled']" 
+    when: change_state.changed and services.disable_tftp_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.9| Ensure tftp services are not enabled']" 
+    when: not change_state.changed and services.disable_tftp_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.9| Ensure tftp services are not enabled']" 
+    when: not services.disable_tftp_service
 
 
   - name: check if xinetd services are not enabled
@@ -192,9 +397,29 @@
     ignore_errors: yes
     changed_when: no
 
+
   - name: Disable xinetd services
+    register: change_state
     shell: "systemctl disable xinetd"
-    when: systemctl_output.stdout != "disabled" and services.disable_xinetd_service
-    
+    when: not systemctl_output.failed and systemctl_output.stdout != "disabled" and services.disable_xinetd_service
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.1.10| Ensure xinetd services are not enabled']" 
+    when: change_state.changed and services.disable_xinetd_service
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.1.10| Ensure xinetd services are not enabled']" 
+    when: not change_state.changed and services.disable_xinetd_service
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.1.10| Ensure xinetd services are not enabled']" 
+    when: not services.disable_xinetd_service
+
+
   become: yes
-  when: ansible_os_family=='Debian'
+  when: ansible_os_family=='RedHat'
+
+
