@@ -31,12 +31,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.2| Ensure SSH Protocol is set to 2']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.protocole_version_2
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.2| Ensure SSH Protocol is set to 2']" 
-    when: not change_state.changed
+    when: not change_state.changed and ssh.protocole_version_2
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.2| Ensure SSH Protocol is set to 2']"
+    when: not ssh.protocole_version_2
 
 
   - name: set LogLevel to INFO
@@ -50,12 +55,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.3| Ensure SSH LogLevel is set to INFO']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.log_level_info
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.3| Ensure SSH LogLevel is set to INFO']" 
-    when: not change_state.changed
+    when: not change_state.changed and ssh.log_level_info
+
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.3| Ensure SSH LogLevel is set to INFO']" 
+    when: not ssh.log_level_info
 
 
   - name: set X11 forwarding to disabled
@@ -69,12 +79,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.4| Ensure SSH X11 forwarding is disabled']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.disable_x11_forwarding
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.4| Ensure SSH X11 forwarding is disabled']" 
-    when: not change_state.changed
+    when: not change_state.changed and ssh.disable_x11_forwarding
+
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.4| Ensure SSH X11 forwarding is disabled']"
+    when: not ssh.disable_x11_forwarding
 
 
   # set it to be variable
@@ -96,6 +111,8 @@
     when: not change_state.changed
   
 
+
+
   - name: set IgnoreRhosts to enabled
     lineinfile:
       path: "{{sshd_config_path}}"
@@ -108,13 +125,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.6| Ensure SSH IgnoreRhosts is enabled']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.enable_IgnoreRhosts
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.6| Ensure SSH IgnoreRhosts is enabled']" 
-    when: not change_state.changed
+    when: not change_state.changed and ssh.enable_IgnoreRhosts
 
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.6| Ensure SSH IgnoreRhosts is enabled']"
+    when: not ssh.enable_IgnoreRhosts
 
 
   - name: set HostbasedAuthentication to disabled
@@ -129,12 +150,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.7| Ensure SSH HostbasedAuthentication is disabled']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.disable_HostbasedAuthentication
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.7| Ensure SSH HostbasedAuthentication is disabled']" 
-    when: not change_state.changed  
+    when: not change_state.changed and ssh.disable_HostbasedAuthentication
+
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.7| Ensure SSH HostbasedAuthentication is disabled']"
+    when: not ssh.disable_HostbasedAuthentication
 
 
   - name: set root login to disabled
@@ -149,12 +175,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.8| Ensure SSH root login is disabled']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.disable_root_login
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.8| Ensure SSH root login is disabled']" 
-    when: not change_state.changed  
+    when: not change_state.changed  and ssh.disable_root_login
+
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.8| Ensure SSH root login is disabled']"
+    when: not ssh.disable_root_login
 
 
   - name: set PermitEmptyPasswords to disabled
@@ -232,12 +263,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.12| Ensure SSH Idle Timeout Interval is configured']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.set_ClientAliveInterval_300_and_ClientAliveCountMax_4
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.12| Ensure SSH Idle Timeout Interval is configured']" 
-    when: not change_state.changed  
+    when: not change_state.changed and ssh.set_ClientAliveInterval_300_and_ClientAliveCountMax_4
+
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.12| Ensure SSH Idle Timeout Interval is configured']"
+    when: not ssh.set_ClientAliveInterval_300_and_ClientAliveCountMax_4
 
 
   - name: Ensure SSH LoginGraceTime is set to one minute or less
@@ -252,13 +288,17 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|5.2.13| Ensure SSH LoginGraceTime is set to one minute or less']" 
-    when: change_state.changed
+    when: change_state.changed and ssh.set_LoginGraceTime_1minute
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|5.2.13| Ensure SSH LoginGraceTime is set to one minute or less']" 
-    when: not change_state.changed  
+    when: not change_state.changed  and ssh.set_LoginGraceTime_1minute
 
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.13| Ensure SSH LoginGraceTime is set to one minute or less']"
+    when: not ssh.set_LoginGraceTime_1minute
 
 
   - name: Ensure SSH access is limited
@@ -272,10 +312,18 @@
 
   #manually
   - set_fact:
-     manual_patch: "{{manual_patch}} +  ['|5.2.14| Ensure SSH access is limited']" 
+     manual_patch: "{{manual_patch}} +  ['|5.2.14| Ensure SSH access is limited']: To limit the access to SSH, please configure the file /etc/ssh/sshd_config and run the
+                following commands 
+                AllowUsers <userlist>
+                AllowGroups <grouplist>
+                DenyUsers <userlist>
+                DenyGroups <grouplist>" 
     when: ssh.ssh_limit
 
-
+ #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|5.2.14| Ensure SSH access is limited']" 
+    when: not ssh.ssh_limit
 
 
 
