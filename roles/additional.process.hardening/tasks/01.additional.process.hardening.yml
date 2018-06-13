@@ -1,23 +1,49 @@
 ---
-- name: Disable core dumps
-  lineinfile: 
-    path: /etc/security/limits.conf
-    regexp: '[ \t]*\*[ \t]+hard[ \t]+core[ \t]+0[ \t]*'
-    line: '* hard core 0'
+
+# 1.5.1 ===============================================================================================================
+
+- block:
+  - name: Disable core dumps
+    lineinfile: 
+      path: /etc/security/limits.conf
+      regexp: '[ \t]*\*[ \t]+hard[ \t]+core[ \t]+0[ \t]*'
+      line: '* hard core 0'
+
+    tags: [print_action]
+    register: lineinfile_result
+
+  # This will give 'changed' even if the key 'fs.suid_dumpable' is by default equals to 0.
+  # This mean that it will always output 'changed' if the value isn't declared in '/etc/sysctl.conf'.
+  - name: Disable core dumps for suid processes
+    sysctl:
+      name: fs.suid_dumpable
+      value: 0
+      state: present
+      sysctl_set: yes
+
+    tags: [print_action]
+    register: sysctl_result
 
   become: yes
+  when: addit_proc_harden.disable_core_dumps
 
-# This will give 'changed' even if the key 'fs.suid_dumpable' is by default equals to 0.
-# This mean that it will always output 'changed' if the value isn't declared in '/etc/sysctl.conf'.
-- name: Disable core dumps for suid processes
-  sysctl:
-    name: fs.suid_dumpable
-    value: 0
-    state: present
-    sysctl_set: yes
+- set_fact:
+    not_done: "{{not_done}} + ['|1.5.1| Ensure core dumps are restricted']"
+  when: not addit_proc_harden.disable_core_dumps
 
-  become: yes
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.5.1| Ensure core dumps are restricted']" 
+  when: addit_proc_harden.disable_core_dumps 
+        and not lineinfile_result.changed 
+        and not sysctl_result.changed
 
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.5.1| Ensure core dumps are restricted']" 
+  when: addit_proc_harden.disable_core_dumps 
+        and (lineinfile_result.changed or sysctl_result.changed)
+
+
+# 1.5.2 ===============================================================================================================
 
 - name: Detect if NX support is enabled
   shell: |
@@ -26,15 +52,16 @@
   failed_when: false
   changed_when: false
 
-- debug: msg="Install a kernel with PAE support to enable NX (No Execute) to prevent code execution
-      on a per memory page basis."
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.5.2| Ensure XD/NX support is enabled']" 
+    when: grep_output.rc==0
+
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|1.5.2| Ensure Ensure XD/NX support is enabled : Install a kernel with PAE support to enable NX']" 
   when: grep_output.rc!=0
 
 
-- name: Verify that ASLR is enabled
-  shell: /sbin/sysctl kernel.randomize_va_space
-  register: sysctl_result
-  changed_when: false
+# 1.5.3 ===============================================================================================================
 
 - name: Enable ASLR
   sysctl:
@@ -43,9 +70,25 @@
     state: present
     sysctl_set: yes
 
-  when: sysctl_result.stdout != "kernel.randomize_va_space = 2"
+  tags: [print_action]
+  register: sysctl_result
   become: yes
+  when: addit_proc_harden.enable_aslr
 
+- set_fact:
+    not_done: "{{not_done}} + ['|1.5.3| Ensure ASLR is enabled']"
+  when: not addit_proc_harden.enable_aslr
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.5.3| Ensure ASLR is enabled']" 
+  when: addit_proc_harden.enable_aslr and not sysctl_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.5.3| Ensure ASLR is enabled']" 
+  when: addit_proc_harden.enable_aslr and sysctl_result.changed
+
+
+# 1.5.4 ===============================================================================================================
 
 - name: Verify if prelink exists
   stat: 
@@ -53,17 +96,33 @@
   register: stat_result
 
 
-# If prelink is not installed in the default location, this won't work. I did it this way because
-# when I connect to CentOS using ansible, the 'PATH' variable is truncated, and doesn't contain all 
-# the default paths.
-- name: Disable prelink
-  shell: /usr/sbin/prelink -ua
+- block:
+  # If prelink is not installed in the default location, this won't work. I did it this way because
+  # when I connect to CentOS using ansible, the 'PATH' variable is truncated, and doesn't contain all 
+  # the default paths.
+  - name: Disable prelink
+    shell: /usr/sbin/prelink -ua
+
+    tags: [print_action]
+
+  - name: Uninstall prelink
+    package: 
+      name: prelink
+      state: absent
+
   become: yes
-  when: stat_result.stat.exists==true
+  when: addit_proc_harden.disable_prelink and stat_result.stat.exists==true
 
 
-- name: Uninstall prelink
-  package: 
-    name: prelink
-    state: absent
-  become: yes
+- set_fact:
+    not_done: "{{not_done}} + ['|1.5.4| Ensure prelink is disabled']"
+  when: not addit_proc_harden.disable_prelink
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.5.4| Ensure prelink is disabled']" 
+  when: addit_proc_harden.disable_prelink and stat_result.stat.exists==false
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.5.4| Ensure prelink is disabled']" 
+  when: addit_proc_harden.disable_prelink and stat_result.stat.exists==true
+

@@ -64,6 +64,15 @@ integr_check:
   regular_check: yes
 
 
+addit_proc_harden:
+  #1.5.1
+  disable_core_dumps: yes
+  #1.5.3
+  enable_aslr: yes
+  #1.5.4
+  disable_prelink: yes
+
+
 auditd:
   install: yes
   # 4.1.1.1
