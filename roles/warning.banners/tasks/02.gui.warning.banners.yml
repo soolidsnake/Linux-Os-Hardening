@@ -45,12 +45,12 @@
     already_done_patch: "{{already_done_patch}} + ['|1.7.2| Ensure GDM login banner is configured']" 
   when: warn_banner.gdm 
         and not blockinfile_result1.changed
-        and not blockinfile_result1.changed
+        and not blockinfile_result2.changed
 
 - set_fact:
     done_patch: "{{done_patch}} + ['|1.7.2| Ensure GDM login banner is configured']" 
   when: warn_banner.gdm 
-        and (blockinfile_result1.changed or blockinfile_result1.changed)
+        and (blockinfile_result1.changed or blockinfile_result2.changed)
 
 
 # We can add banners for other Desktops (Like XFCE, LXDE ...)
