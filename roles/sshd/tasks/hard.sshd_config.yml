@@ -312,12 +312,12 @@
 
   #manually
   - set_fact:
-     manual_patch: "{{manual_patch}} +  ['|5.2.14| Ensure SSH access is limited']: To limit the access to SSH, please configure the file /etc/ssh/sshd_config and run the
+     manual_patch: "{{manual_patch}} +  ['|5.2.14| Ensure SSH access is limited: To limit the access to SSH, please configure the file /etc/ssh/sshd_config and run the
                 following commands 
                 AllowUsers <userlist>
                 AllowGroups <grouplist>
                 DenyUsers <userlist>
-                DenyGroups <grouplist>" 
+                DenyGroups <grouplist>']" 
     when: ssh.ssh_limit
 
  #not done

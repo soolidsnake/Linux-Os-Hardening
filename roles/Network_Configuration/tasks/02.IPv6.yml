@@ -27,20 +27,24 @@
 
 
 
-  #done
-  - set_fact:
-      done_patch: "{{done_patch}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
-    when: change_state.changed and network.ignore_router_advertisements_ipv6
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
+  when: change_state.changed and network.ignore_router_advertisements_ipv6
 
-  #already done
-  - set_fact:
-      already_done_patch: "{{already_done_patch}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
-    when: not change_state.changed and network.ignore_router_advertisements_ipv6
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
+  when: not change_state.changed and network.ignore_router_advertisements_ipv6
 
-  #not done
-  - set_fact:
-      not_done: "{{not_done}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
-    when: not network.ignore_router_advertisements_ipv6
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.3.1| Ensure IPv6 router advertisements are not accepted']" 
+  when: not network.ignore_router_advertisements_ipv6
+
+
+
+
 
 
 
@@ -71,20 +75,22 @@
 
 
 
-  #done
-  - set_fact:
-      done_patch: "{{done_patch}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']" 
-    when: change_state.changed and network.ignore_packet_redirect_ipv6
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']" 
+  when: change_state.changed and network.ignore_packet_redirect_ipv6
 
-  #already done
-  - set_fact:
-      already_done_patch: "{{already_done_patch}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']"
-    when: not change_state.changed and network.ignore_packet_redirect_ipv6
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']"
+  when: not change_state.changed and network.ignore_packet_redirect_ipv6
 
-  #not done
-  - set_fact:
-      not_done: "{{not_done}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']"
-    when: not network.ignore_packet_redirect_ipv6
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.3.2| Ensure IPv6 redirects are not accepted']"
+  when: not network.ignore_packet_redirect_ipv6
+
+
 
 
 
@@ -106,17 +112,17 @@
   when:  network.deactivate_ipv6
 
   
-    #done
-  - set_fact:
-      done_patch: "{{done_patch}} + ['|3.3.3| Ensure IPv6 is disabled']" 
-    when: change_state.changed and network.deactivate_ipv6
+  #done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.3.3| Ensure IPv6 is disabled']" 
+  when: change_state.changed and network.deactivate_ipv6
 
-  #already done
-  - set_fact:
-      already_done_patch: "{{already_done_patch}} + ['|3.3.3| Ensure IPv6 is disabled']" 
-    when: not change_state.changed and network.deactivate_ipv6
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.3.3| Ensure IPv6 is disabled']" 
+  when: not change_state.changed and network.deactivate_ipv6
 
-  #not done
-  - set_fact:
-      not_done: "{{not_done}} + ['|3.3.3| Ensure IPv6 is disabled']" 
-    when: not network.deactivate_ipv6
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.3.3| Ensure IPv6 is disabled']" 
+  when: not network.deactivate_ipv6
