@@ -2,18 +2,35 @@
 
 - block:
   - name: Ensure X Window System is not installedp RedHat
+    register: change_state
     yum:
-      shell: yum remove xorg-x11*
-      update_cache: yes    
+      name: xorg-x11*
+      state: absent   
     when: ansible_os_family=='RedHat' and services.disable_x_windows
 
 
 
   - name: Ensure X Window System is not installedp Debian
-    yum:
-      shell: apt-get remove xserver-xorg*
-      update_cache: yes
+    register: change_state
+    apt:
+      name: xserver-xorg*
+      state: absent
     when: ansible_os_family=='Debian' and services.disable_x_windows
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.2| Ensure X Window System is not installed']" 
+    when: change_state.changed and services.disable_x_windows
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.2| Ensure X Window System is not installed']"  
+    when: not change_state.changed and services.disable_x_windows
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.2| Ensure X Window System is not installed']" 
+    when: not services.disable_x_windows
 
 
 
@@ -25,9 +42,24 @@
     changed_when: no
 
   - name: Disable avahi Server
+    register: change_state
     shell: "systemctl disable avahi-daemon"
-    when: systemctl_output.stdout != disabled and services.disable_avahi_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_avahi_server
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.3| Ensure Avahi Server is not enabled']" 
+    when: change_state.changed and services.disable_avahi_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.3| Ensure Avahi Server is not enabled']"   
+    when: not change_state.changed and services.disable_avahi_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.3| Ensure Avahi Server is not enabled']" 
+    when: not services.disable_avahi_server
 
 
   - name: Ensure CUPS is not enabled
@@ -38,9 +70,24 @@
     changed_when: no
 
   - name: Disable CUPS
+    register: change_state
     shell: "systemctl disable cups"
-    when: systemctl_output.stdout != disabled and services.disable_cups
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_cups
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.4| Ensure CUPS is not enabled']" 
+    when: change_state.changed and services.disable_cups
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.4| Ensure CUPS is not enabled']"   
+    when: not change_state.changed and services.disable_cups
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.4| Ensure CUPS is not enabled']" 
+    when: not services.disable_cups
 
 
   - name: Ensure DHCP Server is not enabled
@@ -51,9 +98,24 @@
     changed_when: no
 
   - name: Disable DHCP Server
+    register: change_state
     shell: "systemctl disable dhcpd"
-    when: systemctl_output.stdout != disabled and services.disable_dhcp_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_dhcp_server
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.5| Ensure DHCP Server is not enabled']" 
+    when: change_state.changed and services.disable_cups
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.5| Ensure DHCP Server is not enabled']"  
+    when: not change_state.changed and services.disable_cups
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.5| Ensure DHCP Server is not enabled']" 
+    when: not services.disable_cups
 
 
   - name: Ensure LDAP Server is not enabled
@@ -64,9 +126,24 @@
     changed_when: no
 
   - name: Disable LDAP Server
+    register: change_state
     shell: "systemctl disable slapd"
-    when: systemctl_output.stdout != disabled and services.disable_ldap_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_ldap_server
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.6| Ensure LDAP Server is not enabled']" 
+    when: change_state.changed and services.disable_ldap_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.6| Ensure LDAP Server is not enabled']" 
+    when: not change_state.changed and services.disable_ldap_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.6| Ensure LDAP Server is not enabled']" 
+    when: not services.disable_ldap_server
 
 
   - name: Ensure NFS is not enabled
@@ -77,9 +154,24 @@
     changed_when: no
 
   - name: Disable NFS Server
+    register: change_state
     shell: "systemctl disable nfs"
-    when: systemctl_output.stdout != disabled and services.disable_nfs
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_nfs
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.7.1| Ensure NFS is not enabled']" 
+    when: change_state.changed and services.disable_nfs
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.7.1| Ensure NFS is not enabled']"  
+    when: not change_state.changed and services.disable_nfs
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.7.1| Ensure NFS is not enabled']" 
+    when: not services.disable_nfs
 
 
   - name: Ensure NFS Server is not enabled
@@ -90,8 +182,24 @@
     changed_when: no
 
   - name: Disable NFS Server
+    register: change_state
     shell: "systemctl disable nfs-server"
-    when: systemctl_output.stdout != disabled and services.disable_nfs_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_nfs_server
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.7.2| Ensure NFS Server is not enabled']" 
+    when: change_state.changed and services.disable_nfs_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.7.2| Ensure NFS Server is not enabled']"  
+    when: not change_state.changed and services.disable_nfs_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.7.2| Ensure NFS Server is not enabled']" 
+    when: not services.disable_nfs_server
 
 
   - name: Ensure RPC is not enabled
@@ -102,8 +210,24 @@
     changed_when: no
 
   - name: Disable RPC Server
+    register: change_state
     shell: "systemctl disable nfs-rpcbind"
-    when: systemctl_output.stdout != disabled and services.disable_rpc
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_rpc
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.7.3| Ensure RPC is not enabled']" 
+    when: change_state.changed and services.disable_rpc
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.7.3| Ensure RPC is not enabled']" 
+    when: not change_state.changed and services.disable_rpc
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.7.3| Ensure RPC is not enabled']" 
+    when: not services.disable_rpc
 
 
   - name: Ensure DNS server is not enabled
@@ -114,9 +238,24 @@
     changed_when: no
 
   - name: Disable DNS Server
+    register: change_state
     shell: "systemctl disable named"
-    when: systemctl_output.stdout != disabled and services.disable_dns_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_dns_server
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.8| Ensure DNS server is not enabled']" 
+    when: change_state.changed and services.disable_dns_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.8| Ensure DNS server is not enabled']" 
+    when: not change_state.changed and services.disable_dns_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.8| Ensure DNS server is not enabled']" 
+    when: not services.disable_dns_server
 
 
   - name: Ensure FTP server is not enabled
@@ -127,9 +266,24 @@
     changed_when: no
 
   - name: Disable FTP Server
+    register: change_state
     shell: "systemctl disable vsftpd"
-    when: systemctl_output.stdout != disabled and services.disable_ftp_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_ftp_server
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.9| Ensure FTP server is not enabled']" 
+    when: change_state.changed and services.disable_ftp_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.9| Ensure FTP server is not enabled']" 
+    when: not change_state.changed and services.disable_ftp_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.9| Ensure FTP server is not enabled']" 
+    when: not services.disable_ftp_server
 
 
   - name: Ensure HTTP is not enabled
@@ -140,8 +294,24 @@
     changed_when: no
 
   - name: Disable HTTP Server
+    register: change_state
     shell: "systemctl disable httpd"
-    when: systemctl_output.stdout != disabled and services.disable_http_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_http_server
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.10| Ensure HTTP is not enabled']" 
+    when: change_state.changed and services.disable_http_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.10| Ensure HTTP is not enabled']"  
+    when: not change_state.changed and services.disable_http_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.10| Ensure HTTP is not enabled']" 
+    when: not services.disable_http_server
 
 
   - name: Ensure IMAP and POP3 is not enabled
@@ -152,8 +322,24 @@
     changed_when: no
 
   - name: Disable IMAP and POP3 Server
+    register: change_state
     shell: "systemctl disable dovecot"
-    when: systemctl_output.stdout != disabled and services.disable_imap_pop3
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_imap_pop3
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.11| Ensure IMAP and POP3 is not enabled']" 
+    when: change_state.changed and services.disable_imap_pop3
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.11| Ensure IMAP and POP3 is not enabled']" 
+    when: not change_state.changed and services.disable_imap_pop3
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.11| Ensure IMAP and POP3 is not enabled']" 
+    when: not services.disable_imap_pop3
 
 
   - name: Ensure HTTP Proxy is not enabled
@@ -164,8 +350,24 @@
     changed_when: no
 
   - name: Disable HTTP Proxy Server
+    register: change_state
     shell: "systemctl disable squid"
-    when: systemctl_output.stdout != disabled and services.disable_http_proxy_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_http_proxy_server
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.12| Ensure HTTP Proxy is not enabled']" 
+    when: change_state.changed and services.disable_http_proxy_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.12| Ensure HTTP Proxy is not enabled']" 
+    when: not change_state.changed and services.disable_http_proxy_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.12| Ensure HTTP Proxy is not enabled']" 
+    when: not services.disable_http_proxy_server
 
 
   - name: Ensure SNMP is not enabled
@@ -176,9 +378,24 @@
     changed_when: no
 
   - name: Disable SNMP Server
+    register: change_state
     shell: "systemctl disable snmpd"
-    when: systemctl_output.stdout != disabled and services.disable_snmp
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_snmp
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.13| Ensure SNMP is not enabled']" 
+    when: change_state.changed and services.disable_snmp
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.13| Ensure SNMP is not enabled']" 
+    when: not change_state.changed and services.disable_snmp
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.13| Ensure SNMP is not enabled']" 
+    when: not services.disable_snmp
 
 
   - name: Ensure NIS is not enabled
@@ -189,9 +406,24 @@
     changed_when: no
 
   - name: Disable NIS Server
+    register: change_state
     shell: "systemctl disable ypserv"
-    when: systemctl_output.stdout != disabled and services.disable_nis
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_nis
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.14|  Ensure NIS is not enabled']" 
+    when: change_state.changed and services.disable_nis
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.14|  Ensure NIS is not enabled']"
+    when: not change_state.changed and services.disable_nis
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.14|  Ensure NIS is not enabled']"
+    when: not services.disable_nis
 
 
   - name: Ensure Samba Server is not enabled
@@ -202,9 +434,25 @@
     changed_when: no
 
   - name: Disable Samba Server
+    register: change_state
     shell: "systemctl disable smb"
-    when: systemctl_output.stdout != disabled and services.disable_samba_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_samba_server
     
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.15|  Ensure Samba is not enabled']" 
+    when: change_state.changed and services.disable_samba_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.15|  Ensure Samba is not enabled']"
+    when: not change_state.changed and services.disable_samba_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.15|  Ensure Samba is not enabled']"
+    when: not services.disable_samba_server
+
 
   - name: Ensure talk Server is not enabled
     shell: systemctl is-enabled ntalk
@@ -214,8 +462,24 @@
     changed_when: no
 
   - name: Disable talk Server
+    register: change_state
     shell: "systemctl disable ntalk"
-    when: systemctl_output.stdout != disabled and services.disable_talk_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_talk_server
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.16|  Ensure talk Server is not enabled']" 
+    when: change_state.changed and services.disable_samba_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.16|  Ensure talk Server is not enabled']" 
+    when: not change_state.changed and services.disable_samba_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.16|  Ensure talk Server is not enabled']" 
+    when: not services.disable_samba_server
 
 
   - name: Ensure TELNET Server is not enabled
@@ -226,8 +490,24 @@
     changed_when: no
 
   - name: Disable TELNET Server
+    register: change_state
     shell: "systemctl disable telnet.socket"
-    when: systemctl_output.stdout != disabled and services.disable_telnet_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_telnet_server
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.17|  Ensure TELNET Server is not enabled']" 
+    when: change_state.changed and services.disable_telnet_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.17|  Ensure TELNET Server is not enabled']" 
+    when: not change_state.changed and services.disable_telnet_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.17|  Ensure TELNET Server is not enabled']"  
+    when: not services.disable_telnet_server
 
 
   - name: Ensure TFTP Server is not enabled
@@ -238,8 +518,24 @@
     changed_when: no
 
   - name: Disable TFTP Server
+    register: change_state
     shell: "systemctl disable tftp.socket"
-    when: systemctl_output.stdout != disabled and services.disable_tftp_server
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_tftp_server
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.18|  Ensure TFTP Server is not enabled']" 
+    when: change_state.changed and services.disable_tftp_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.18|  Ensure TFTP Server is not enabled']" 
+    when: not change_state.changed and services.disable_tftp_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.18|  Ensure TFTP Server is not enabled']"  
+    when: not services.disable_tftp_server
 
 
   - name: Ensure rsync service is not enabled
@@ -250,5 +546,22 @@
     changed_when: no
 
   - name: Disable rsync service Server
+    register: change_state
     shell: "systemctl disable rsyncd"
-    when: systemctl_output.stdout != disabled and services.disable_rsync
+    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_rsync
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.2.19| Ensure rsync service is not enabled']" 
+    when: change_state.changed and services.disable_tftp_server
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.2.19| Ensure rsync service is not enabled']" 
+    when: not change_state.changed and services.disable_tftp_server
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.2.19| Ensure rsync service is not enabled']" 
+    when: not services.disable_tftp_server
+
