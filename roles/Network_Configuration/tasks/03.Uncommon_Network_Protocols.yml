@@ -9,6 +9,7 @@
   when: p.stat.exists == false
 
 - name: Ensure DCCP is disabled
+  register: change_state
   lineinfile:
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install dccp'
@@ -17,7 +18,25 @@
   become: yes
 
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.5.1| Ensure DCCP is disabled']" 
+    when: change_state.changed and network.disable_dccp
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.5.1| Ensure DCCP is disabled']" 
+    when: not change_state.changed and network.disable_dccp
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.5.1| Ensure DCCP is disabled']" 
+    when: not network.disable_dccp
+
+
+
 - name: Ensure SCTP is disabled
+  register: change_state
   lineinfile:
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install sctp'
@@ -26,7 +45,26 @@
   become: yes
 
 
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.5.2| Ensure SCTP is disabled']" 
+    when: change_state.changed and network.disable_sctp
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.5.2| Ensure SCTP is disabled']" 
+    when: not change_state.changed and network.disable_sctp
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.5.2| Ensure SCTP is disabled']" 
+    when: not network.disable_sctp
+
+
+
 - name: Ensure RDS is disabled
+  register: change_state
   lineinfile:
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install rds'
@@ -35,10 +73,45 @@
   become: yes
 
 
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.5.3| Ensure RDS is disabled']" 
+    when: change_state.changed and network.disable_rds
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.5.3| Ensure RDS is disabled']" 
+    when: not change_state.changed and network.disable_rds
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.5.3| Ensure RDS is disabled']" 
+    when: not network.disable_rds
+
+
+
 - name: Ensure TIPC is disabled
+  register: change_state
   lineinfile:
     path: "/etc/modprobe.d/CIS.conf"
     regexp: 'install tipc'
     line: 'install tipc /bin/true'
   when: network.disable_tipc
   become: yes
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|3.5.4| Ensure TIPC is disabled']" 
+    when: change_state.changed and network.disable_tipc
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|3.5.4| Ensure TIPC is disabled']"  
+    when: not change_state.changed and network.disable_tipc
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|3.5.4| Ensure TIPC is disabled']" 
+    when: not network.disable_tipc
