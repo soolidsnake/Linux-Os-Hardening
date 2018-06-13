@@ -1,5 +1,8 @@
 ---
 
+
+# 1.7.2 ===============================================================================================================
+
 # GDM Warning Login Banner
 - block:
   - name: Configure GDM login warning banner
@@ -10,6 +13,9 @@
         system-db:gdm
         file-db:/usr/share/gdm/greeter-dconf-defaults"
       create: yes
+    
+    tags: [print_action]
+    register: blockinfile_result1
 
   - file: 
       path: /etc/dconf/db/gdm.d/
@@ -23,11 +29,28 @@
         banner-message-text='Authorized uses only. All activity may be monitored and reported.'
       create: yes
 
+    register: blockinfile_result2
+
   - shell: dconf update
 
 
   become: yes
-  when: ansible_env.GDMSESSION is defined
+  when: warn_banner.gdm and ansible_env.GDMSESSION is defined
+
+- set_fact:
+    not_done: "{{not_done}} + ['|1.7.2| Ensure GDM login banner is configured']"
+  when: not warn_banner.gdm
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.7.2| Ensure GDM login banner is configured']" 
+  when: warn_banner.gdm 
+        and not blockinfile_result1.changed
+        and not blockinfile_result1.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.7.2| Ensure GDM login banner is configured']" 
+  when: warn_banner.gdm 
+        and (blockinfile_result1.changed or blockinfile_result1.changed)
 
 
 # We can add banners for other Desktops (Like XFCE, LXDE ...)

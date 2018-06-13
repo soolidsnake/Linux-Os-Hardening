@@ -1,13 +1,69 @@
 ---
+
+# 1.7.1.1 | 1.7.1.4 ===================================================================================================
+
 - name: Configure message of the day
   template: src=motd.j2 dest=/etc/motd mode=0644 owner=root
+
+  tags: [print_action]
+  register: template_result
   become: yes
+  when: warn_banner.message_day
+
+- set_fact:
+    not_done: "{{not_done}} + ['|1.7.1.1| Ensure message of the day is configured properly']"
+  when: not warn_banner.message_day
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.7.1.1| Ensure message of the day is configured properly']" 
+  when: warn_banner.message_day and not template_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.7.1.1| Ensure message of the day is configured properly']" 
+  when: warn_banner.message_day and template_result.changed
+
+
+# 1.7.1.2 | 1.7.1.5 ====================================================================================================
 
 - name: Configure local login warning banner
   template: src=issue.j2 dest=/etc/issue mode=0644 owner=root
+
+  tags: [print_action]
+  register: template_result
   become: yes
+  when: warn_banner.local_login
+
+- set_fact:
+    not_done: "{{not_done}} + ['|1.7.1.2| Ensure local login warning banner is configured properly']"
+  when: not warn_banner.local_login
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.7.1.2| Ensure local login warning banner is configured properly']" 
+  when: warn_banner.local_login and not template_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.7.1.2| Ensure local login warning banner is configured properly']" 
+  when: warn_banner.local_login and template_result.changed
+
+# 1.7.1.3 | 1.7.1.6 ====================================================================================================
 
 - name: Configure remote login warning banner
   template: src=issue.net.j2 dest=/etc/issue.net mode=0644 owner=root
-  become: yes
 
+  tags: [print_action]
+  register: template_result
+  become: yes
+  when: warn_banner.remote_login
+
+
+- set_fact:
+    not_done: "{{not_done}} + ['|1.7.1.3| Ensure remote login warning banner is configured properly']"
+  when: not warn_banner.remote_login
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.7.1.3| Ensure remote login warning banner is configured properly']" 
+  when: warn_banner.remote_login and not template_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.7.1.3| Ensure remote login warning banner is configured properly']" 
+  when: warn_banner.remote_login and template_result.changed
