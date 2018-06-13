@@ -1,84 +1,176 @@
 ---
 
-- block:
+- block: 
   - name: Ensure ypbind is not installed
+    register: change_state
+    apt:
+      name: ypbind
+      state: absent
+    when: services.uninstall_ypbind and ansible_os_family=='Debian'
+
+
+  - name: Ensure ypbind is not installed
+    register: change_state
     yum:
       name: ypbind
       state: absent
-    when: services.uninstall_ypbind
+    when: services.uninstall_ypbind and ansible_os_family=='RedHat'
+
+
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.3.1| Ensure ypbind is not installed']" 
+    when: change_state.changed and services.uninstall_ypbind
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.3.1| Ensure ypbind is not installed']"
+    when: not change_state.changed and services.uninstall_ypbind
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.3.1| Ensure ypbind is not installed']"
+    when: not services.uninstall_ypbind
+
+
+
+
 
 
 
   - name: Ensure rsh is not installed
+    register: change_state
+    apt:
+      name: rsh
+      state: absent
+    when: services.uninstall_rsh
+
+  - name: Ensure rsh is not installed
+    register: change_state
     yum:
       name: rsh
       state: absent
     when: services.uninstall_rsh
 
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.3.2| Ensure rsh is not installed']" 
+    when: change_state.changed and services.uninstall_rsh
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.3.2| Ensure rsh is not installed']"
+    when: not change_state.changed and services.uninstall_rsh
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.3.2| Ensure rsh is not installed']"
+    when: not services.uninstall_rsh
+
+
+
+
+
+
   - name: Ensure talk is not installed
+    register: change_state
+    apt:
+      name: talk
+      state: absent
+    when: services.uninstall_talk
+
+  - name: Ensure talk is not installed
+    register: change_state
     yum:
       name: talk
       state: absent
     when: services.uninstall_talk
 
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.3.3| Ensure talk is not installed']" 
+    when: change_state.changed and services.uninstall_talk
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.3.3| Ensure talk is not installed']"
+    when: not change_state.changed and services.uninstall_talk
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.3.3| Ensure talk is not installed']"
+    when: not services.uninstall_talk
+
+
+
+
+
+
   - name: Ensure telnet is not installed
+    register: change_state
+    apt:
+      name: telnet
+      state: absent
+    when: services.uninstall_telnet
+
+  - name: Ensure telnet is not installed
+    register: change_state
     yum:
       name: telnet
       state: absent
     when: services.uninstall_telnet
 
 
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.3.4| Ensure telnet is not installed']" 
+    when: change_state.changed and services.uninstall_telnet
+
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.3.4| Ensure telnet is not installed']"
+    when: not change_state.changed and services.uninstall_telnet
+
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.3.4| Ensure telnet is not installed']"
+    when: not services.uninstall_telnet
+
+
+
+
+
   - name: Ensure openldap-clients is not installed
+    register: change_state
+    apt:
+      name: openldap-clients
+      state: absent
+    when: services.uninstall_openldap-clients
+
+  - name: Ensure openldap-clients is not installed
+    register: change_state
     yum:
       name: openldap-clients
       state: absent
     when: services.uninstall_openldap-clients
     
 
-  become: yes
-  when: ansible_os_family=='RedHat'
+  #done
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|2.3.5| Ensure openldap-clients is not installed']" 
+    when: change_state.changed and services.uninstall_openldap-clients
 
+  #already done
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|2.3.5| Ensure openldap-clients is not installed']"
+    when: not change_state.changed and services.uninstall_openldap-clients
 
-
-
-
-- block:
-  - name: Ensure ypbind is not installed
-    apt:
-      name: ypbind
-      state: absent
-    when: services.uninstall_ypbind
-
-
-  - name: Ensure rsh is not installed
-    apt:
-      name: rsh
-      state: absent
-    when: services.uninstall_rsh
-
-
-  - name: Ensure talk is not installed
-    apt:
-      name: talk
-      state: absent
-    when: services.uninstall_talk
-
-
-  - name: Ensure telnet is not installed
-    apt:
-      name: telnet
-      state: absent
-    when: services.uninstall_telnet
-
-
-  - name: Ensure openldap-clients is not installed
-    apt:
-      name: openldap-clients
-      state: absent
-    when: services.uninstall_openldap-clients
+  #not done
+  - set_fact:
+      not_done: "{{not_done}} + ['|2.3.5| Ensure openldap-clients is not installed']"
+    when: not services.uninstall_openldap-clients
 
 
   become: yes
-  when: ansible_os_family=='Debian'
