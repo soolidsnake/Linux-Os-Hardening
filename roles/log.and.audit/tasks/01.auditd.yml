@@ -5,8 +5,25 @@
     state: present
     update_cache: yes
 
+  register: apt_result
   become: yes
+  when: auditd.install and ansible_pkg_mgr=='apt'
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1| Install Auditd']"
+    when: not auditd.install
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1| Install Auditd']" 
+    when: auditd.install and not apt_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1| Install Auditd']" 
+    when: auditd.install and apt_result.changed
+  
   when: ansible_pkg_mgr=='apt'
+
 
 - name: Install auditd package on RedHat based distros
   yum: 
@@ -14,41 +31,113 @@
     state: present
     update_cache: yes
 
+  register: yum_result
   become: yes
+  when: auditd.install and ansible_pkg_mgr=='yum'
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1| Install Auditd']"
+    when: not auditd.install
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1| Install Auditd']" 
+    when: auditd.install and not yum_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1| Install Auditd']" 
+    when: auditd.install and yum_result.changed
+  
   when: ansible_pkg_mgr=='yum'
 
+
+# 4.1.1.1 =============================================================================================================
 
 - name: Configure audit log storage size
   lineinfile:
     path: /etc/audit/auditd.conf
     regexp: 'max_log_file[ =].+'
     line: 'max_log_file = {{max_log_file_size}}'
+  
+  register: lineinfile_result
   become: yes
+  when: auditd.configure_log_storage_size and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.1.1| Ensure audit log storage size is configured']"
+    when: not auditd.configure_log_storage_size
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.1.1| Ensure audit log storage size is configured']" 
+    when: auditd.configure_log_storage_size and not lineinfile_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.1.1| Ensure audit log storage size is configured']" 
+    when: auditd.configure_log_storage_size and lineinfile_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.1.1| Ensure audit log storage size is configured']"
+  when: not auditd.install
 
 
-- name: Configure the system to shutdown when audit logs are full
-  lineinfile:
-    path: /etc/audit/auditd.conf
-    regexp: '\bspace_left_action.+'
-    line: 'space_left_action = email'
+# 4.1.1.2 =============================================================================================================
 
-  become: yes
+- block:
+  - name: Configure the system to shutdown when audit logs are full
+    lineinfile:
+      path: /etc/audit/auditd.conf
+      regexp: '\bspace_left_action.+'
+      line: 'space_left_action = email'
 
-- name: Configure the system to shutdown when audit logs are full
-  lineinfile:
-    path: /etc/audit/auditd.conf
-    regexp: '\baction_mail_acct.+'
-    line: 'action_mail_acct = root'
+    register: lineinfile_result1
+    become: yes
 
-  become: yes
+  - name: Configure the system to shutdown when audit logs are full
+    lineinfile:
+      path: /etc/audit/auditd.conf
+      regexp: '\baction_mail_acct.+'
+      line: 'action_mail_acct = root'
 
-- name: Configure the system to shutdown when audit logs are full
-  lineinfile:
-    path: /etc/audit/auditd.conf
-    regexp: '\badmin_space_left_action.+'
-    line: 'admin_space_left_action = halt'
+    register: lineinfile_result2
+    become: yes
 
-  become: yes
+  - name: Configure the system to shutdown when audit logs are full
+    lineinfile:
+      path: /etc/audit/auditd.conf
+      regexp: '\badmin_space_left_action.+'
+      line: 'admin_space_left_action = halt'
+
+    register: lineinfile_result3
+    become: yes
+
+  when: auditd.disable_system and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.1.2| Ensure system is disabled when audit logs are full']"
+    when: not auditd.disable_system
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.1.2| Ensure system is disabled when audit logs are full']" 
+    when: auditd.disable_system 
+          and (not lineinfile_result1.changed and not lineinfile_result2.changed and not lineinfile_result3.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.1.2| Ensure system is disabled when audit logs are full']" 
+    when: auditd.disable_system 
+          and (lineinfile_result1.changed or lineinfile_result2.changed or lineinfile_result3.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.1.2| Ensure system is disabled when audit logs are full']"
+  when: not auditd.install
+
+
+# 4.1.1.3 =============================================================================================================
 
 - name: Ensure audit logs are not automatically deleted
   lineinfile:
@@ -56,62 +145,167 @@
     regexp: '\bmax_log_file_action.+'
     line: 'max_log_file_action = keep_logs'
 
+  register: lineinfile_result
   become: yes
+
+  when: auditd.save_logs and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.1.3| Ensure audit logs are not automatically deleted']"
+    when: not auditd.save_logs
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.1.3| Ensure audit logs are not automatically deleted']" 
+    when: auditd.save_logs and not lineinfile_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.1.3| Ensure audit logs are not automatically deleted']" 
+    when: auditd.save_logs and lineinfile_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.1.3| Ensure audit logs are not automatically deleted']"
+  when: not auditd.install
+
+
+# 4.1.2 ===============================================================================================================
 
 - name: Enable auditd service
   service:
     name: auditd
     state: started
     enabled: yes
+  
+  register: service_result
   become: yes
 
+  when: auditd.enable_service and auditd.install
 
-- name: Read /etc/default/grub file content
-  shell: cat /etc/default/grub
-  register: grub_cfg
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.2| Ensure auditd service is enabled']"
+    when: not auditd.enable_service
 
-- name: Enable auditing for processes that start prior to auditd
-  lineinfile: 
-    path: /etc/default/grub
-    regexp: "(GRUB_CMDLINE_LINUX.+)([\"'])"
-    line: '\1 audit=1\2'
-    backrefs: yes
-  become: yes
-  when: grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.2| Ensure auditd service is enabled']" 
+    when: auditd.enable_service and not service_result.changed
 
-- name: Update Grub for Debian based distros
-  shell: update-grub
-  become: yes
-  when: ansible_os_family=='Debian' and grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.2| Ensure auditd service is enabled']" 
+    when: auditd.enable_service and service_result.changed
+  
+  when: auditd.install
 
-- name: Update Grub for RedHat based distros
-  shell: grub2-mkconfig -o /boot/grub2/grub.cfg
-  become: yes
-  when: ansible_os_family=='RedHat' and grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.2| Ensure auditd service is enabled']"
+  when: not auditd.install
+
+
+# 4.1.3 ===============================================================================================================
+
+- block:
+  - name: Read /etc/default/grub file content
+    shell: cat /etc/default/grub
+    register: grub_cfg
+
+  - name: Enable auditing for processes that start prior to auditd
+    lineinfile: 
+      path: /etc/default/grub
+      regexp: "(GRUB_CMDLINE_LINUX.+)([\"'])"
+      line: '\1 audit=1\2'
+      backrefs: yes
+    
+    register: lineinfile_result
+    become: yes
+    when: grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+
+  - name: Update Grub for Debian based distros
+    shell: update-grub
+    become: yes
+    when: ansible_os_family=='Debian' and grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+
+  - name: Update Grub for RedHat based distros
+    shell: grub2-mkconfig -o /boot/grub2/grub.cfg
+    become: yes
+    when: ansible_os_family=='RedHat' and grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+audit=1")
+
+  when: auditd.process_prior_auditd and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.3| Ensure auditing for processes that start prior to auditd is enabled']"
+    when: not auditd.process_prior_auditd
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.3| Ensure auditing for processes that start prior to auditd is enabled']" 
+    when: auditd.process_prior_auditd and not lineinfile_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.3| Ensure auditing for processes that start prior to auditd is enabled']" 
+    when: auditd.process_prior_auditd and lineinfile_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.3| Ensure auditing for processes that start prior to auditd is enabled']"
+  when: not auditd.install
 
 
 # 4.1.4 ===============================================================================================================
 
-- name: Configure auditd to collect events that modify date and time information on 64bit systems
-  template:
-    src: CIS.log.modify.time.date.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.time.date.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=="x86_64"
+- block:
+  - name: Configure auditd to collect events that modify date and time information on 64bit systems
+    template:
+      src: CIS.log.modify.time.date.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.time.date.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect events that modify date and time information on 32bit systems
-  template:
-    src: CIS.log.modify.time.date.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.time.date.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false
+    register: template_result1
+    become: yes
+    when: ansible_architecture=="x86_64"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect events that modify date and time information on 32bit systems
+    template:
+      src: CIS.log.modify.time.date.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.time.date.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+
+    register: template_result2
+    become: yes
+    when: false
+  
+  when: auditd.date_time and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.4| Ensure events that modify date and time information are collected']"
+    when: not auditd.date_time
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.4| Ensure events that modify date and time information are collected']" 
+    when: auditd.date_time 
+          and (not template_result1.changed and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.4| Ensure events that modify date and time information are collected']" 
+    when: auditd.date_time 
+          and (template_result1.changed or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.4| Ensure events that modify date and time information are collected']"
+  when: not auditd.install
+
 
 # 4.1.5 ===============================================================================================================
 
@@ -122,53 +316,115 @@
     owner: root
     group: root
     mode: 0600
+  
+  register: template_result
   become: yes
+  when: auditd.user_group and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.5| Ensure events that modify user/group information are collected']"
+    when: not auditd.user_group
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.5| Ensure events that modify user/group information are collected']" 
+    when: auditd.user_group and not template_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.5| Ensure events that modify user/group information are collected']" 
+    when: auditd.user_group and template_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.5| Ensure events that modify user/group information are collected']"
+  when: not auditd.install
 
 
 # 4.1.6 ===============================================================================================================
 
-- name: Configure auditd to collect events that modify the system's network environment on 64bit Debian based distros
-  template:
-    src: CIS.log.modify.network.debian.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.network.debian.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=='x86_64' and ansible_os_family=="Debian"
+- block:
+  - name: Configure auditd to collect events that modify the system's network environment on 64bit Debian based distros
+    template:
+      src: CIS.log.modify.network.debian.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.network.debian.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect events that modify the system's network environment on 32bit Debian based distros
-  template:
-    src: CIS.log.modify.network.debian.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.network.debian.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false and ansible_os_family=="Debian"
+    register: template_result1
+    become: yes
+    when: ansible_architecture=='x86_64' and ansible_os_family=="Debian"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect events that modify the system's network environment on 32bit Debian based distros
+    template:
+      src: CIS.log.modify.network.debian.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.network.debian.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+
+    register: template_result2
+    become: yes
+    when: false and ansible_os_family=="Debian"
 
 
-- name: Configure auditd to collect events that modify the system's network environment on 64bit RedHat based distros
-  template:
-    src: CIS.log.modify.network.redhat.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.network.redhat.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=='x86_64' and ansible_os_family=="RedHat"
+  - name: Configure auditd to collect events that modify the system's network environment on 64bit RedHat based distros
+    template:
+      src: CIS.log.modify.network.redhat.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.network.redhat.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect events that modify the system's network environment on 32bit RedHat based distros
-  template:
-    src: CIS.log.modify.network.redhat.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.network.redhat.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false and ansible_os_family=="RedHat"
+    register: template_result3
+    become: yes
+    when: ansible_architecture=='x86_64' and ansible_os_family=="RedHat"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect events that modify the system's network environment on 32bit RedHat based distros
+    template:
+      src: CIS.log.modify.network.redhat.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.network.redhat.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+
+    register: template_result4
+    become: yes
+    when: false and ansible_os_family=="RedHat"
+
+  when: auditd.network_environ and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.6| Ensure events that modify the systems network environment are collected']"
+    when: not auditd.network_environ
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.6| Ensure events that modify the systems network environment are collected']" 
+    when: auditd.network_environ 
+          and (not template_result1.changed 
+              and not template_result2.changed 
+              and not template_result3.changed
+              and not template_result4.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.6| Ensure events that modify the systems network environment are collected']" 
+    when: auditd.network_environ
+          and (template_result1.changed
+              or template_result2.changed
+              or template_result3.changed
+              or template_result4.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.6| Ensure events that modify the systems network environment are collected']"
+  when: not auditd.install
 
 
 # 4.1.7 ===============================================================================================================
@@ -180,30 +436,83 @@
     owner: root
     group: root
     mode: 0600
+  
+  register: template_result
   become: yes
+  when: auditd.mac and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.7| Ensure events that modify the systems Mandatory Access Control are collected']"
+    when: not auditd.mac
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.7| Ensure events that modify the systems Mandatory Access Control are collected']" 
+    when: auditd.mac and not template_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.7| Ensure events that modify the systems Mandatory Access Control are collected']" 
+    when: auditd.mac and template_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.7| Ensure events that modify the systems Mandatory Access Control are collected']"
+  when: not auditd.install
 
 
 # 4.1.8 ===============================================================================================================
 
-- name: Configure auditd to collect login and logout events on Debian based distros
-  template:
-    src: CIS.log.login.logout.debian.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.login.logout.debian.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_os_family=="Debian"
+- block:
+  - name: Configure auditd to collect login and logout events on Debian based distros
+    template:
+      src: CIS.log.login.logout.debian.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.login.logout.debian.rules
+      owner: root
+      group: root
+      mode: 0600
+    
+    register: template_result1
+    become: yes
+    when: ansible_os_family=="Debian"
 
-- name: Configure auditd to collect login and logout events on RedHat based distros
-  template:
-    src: CIS.log.login.logout.redhat.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.login.logout.redhat.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_os_family=="RedHat"
+  - name: Configure auditd to collect login and logout events on RedHat based distros
+    template:
+      src: CIS.log.login.logout.redhat.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.login.logout.redhat.rules
+      owner: root
+      group: root
+      mode: 0600
+    
+    register: template_result2
+    become: yes
+    when: ansible_os_family=="RedHat"
+
+  when: auditd.login_logout and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.8| Ensure login and logout events are collected']"
+    when: not auditd.login_logout
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.8| Ensure login and logout events are collected']" 
+    when: auditd.login_logout 
+          and (not template_result1.changed 
+              and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.8| Ensure login and logout events are collected']" 
+    when: auditd.login_logout
+          and (template_result1.changed
+              or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.8| Ensure login and logout events are collected']"
+  when: not auditd.install
 
 
 # 4.1.9 ===============================================================================================================
@@ -215,118 +524,288 @@
     owner: root
     group: root
     mode: 0600
+  
+  register: template_result
   become: yes
+  when: auditd.session_init and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.9| Ensure session initiation information is collected']"
+    when: not auditd.session_init
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.9| Ensure session initiation information is collected']" 
+    when: auditd.session_init and not template_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.9| Ensure session initiation information is collected']" 
+    when: auditd.session_init and template_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.9| Ensure session initiation information is collected']"
+  when: not auditd.install
 
 
 # 4.1.10 ==============================================================================================================
 
-- name: Configure auditd to collect events that modify Discretionary Access Control permission on 64bit systems
-  template:
-    src: CIS.log.modify.DAC.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.DAC.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=="x86_64"
+- block:
+  - name: Configure auditd to collect events that modify Discretionary Access Control permission on 64bit systems
+    template:
+      src: CIS.log.modify.DAC.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.DAC.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect events that modify Discretionary Access Control permission on 32bit systems
-  template:
-    src: CIS.log.modify.DAC.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modify.DAC.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false
+    register: template_result1
+    become: yes
+    when: ansible_architecture=="x86_64"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect events that modify Discretionary Access Control permission on 32bit systems
+    template:
+      src: CIS.log.modify.DAC.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modify.DAC.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+    
+    register: template_result2
+    become: yes
+    when: false
+
+  when: auditd.dac and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.10| Ensure discretionary access control permission modification events are collected']"
+    when: not auditd.dac
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.10| Ensure discretionary access control permission modification events are collected']" 
+    when: auditd.dac 
+          and (not template_result1.changed 
+              and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.10| Ensure discretionary access control permission modification events are collected']" 
+    when: auditd.dac
+          and (template_result1.changed
+              or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.10| Ensure discretionary access control permission modification events are collected']"
+  when: not auditd.install
 
 
 # 4.1.11 ==============================================================================================================
 
-- name: Configure auditd to collect unsuccessful unauthorized file access attempts on 64bit systems
-  template:
-    src: CIS.log.unsuccessful.file.access.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.unsuccessful.file.access.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=="x86_64"
+- block:
+  - name: Configure auditd to collect unsuccessful unauthorized file access attempts on 64bit systems
+    template:
+      src: CIS.log.unsuccessful.file.access.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.unsuccessful.file.access.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect unsuccessful unauthorized file access attempts on 32bit systems
-  template:
-    src: CIS.log.unsuccessful.file.access.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.unsuccessful.file.access.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false
+    register: template_result1
+    become: yes
+    when: ansible_architecture=="x86_64"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect unsuccessful unauthorized file access attempts on 32bit systems
+    template:
+      src: CIS.log.unsuccessful.file.access.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.unsuccessful.file.access.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+    
+    register: template_result2
+    become: yes
+    when: false
+
+  when: auditd.unsuccess_file_access and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.11| Ensure unsuccessful unauthorized file access attempts are collected']"
+    when: not auditd.unsuccess_file_access
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.11| Ensure unsuccessful unauthorized file access attempts are collected']" 
+    when: auditd.unsuccess_file_access 
+          and (not template_result1.changed 
+              and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.11| Ensure unsuccessful unauthorized file access attempts are collected']" 
+    when: auditd.unsuccess_file_access
+          and (template_result1.changed
+              or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.11| Ensure unsuccessful unauthorized file access attempts are collected']"
+  when: not auditd.install
 
 
 # 4.1.12 ==============================================================================================================
 
-- name: Find SUID commands
-  shell: 'find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk ''{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }'' ' 
-  register: find_result
-  become: yes
+- block:
+  - name: Find SUID commands
+    shell: 'find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk ''{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }'' ' 
+    register: find_result
+    become: yes
 
-- name: Configure auditd to collect the use of privileged commands
-  blockinfile: 
-    path: /etc/audit/rules.d/CIS.log.SUID.commands.rules
-    block: "{{find_result.stdout}}"
-    create: yes
-  become: yes
+  - name: Configure auditd to collect the use of privileged commands
+    blockinfile: 
+      path: /etc/audit/rules.d/CIS.log.SUID.commands.rules
+      block: "{{find_result.stdout}}"
+      create: yes
+
+    register: blockinfile_result
+    become: yes
+
+  when: auditd.priv_commands and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.12| Ensure use of privileged commands is collected']"
+    when: not auditd.priv_commands
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.12| Ensure use of privileged commands is collected']" 
+    when: auditd.priv_commands and not blockinfile_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.12| Ensure use of privileged commands is collected']" 
+    when: auditd.priv_commands and blockinfile_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.12| Ensure use of privileged commands is collected']"
+  when: not auditd.install
 
 
 # 4.1.13 ==============================================================================================================
 
-- name: Configure auditd to collect successful file system mounts on 64bit systems
-  template:
-    src: CIS.log.successful.mount.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.successful.mount.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=="x86_64"
+- block:
+  - name: Configure auditd to collect successful file system mounts on 64bit systems
+    template:
+      src: CIS.log.successful.mount.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.successful.mount.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect successful file system mounts on 32bit systems
-  template:
-    src: CIS.log.successful.mount.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.successful.mount.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false
+    register: template_result1
+    become: yes
+    when: ansible_architecture=="x86_64"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect successful file system mounts on 32bit systems
+    template:
+      src: CIS.log.successful.mount.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.successful.mount.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+
+    register: template_result2
+    become: yes
+    when: false
+
+  when: auditd.success_mount and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.13| Ensure successful file system mounts are collected']"
+    when: not auditd.success_mount
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.13| Ensure successful file system mounts are collected']" 
+    when: auditd.success_mount 
+          and (not template_result1.changed 
+              and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.13| Ensure successful file system mounts are collected']" 
+    when: auditd.success_mount
+          and (template_result1.changed
+              or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.13| Ensure successful file system mounts are collected']"
+  when: not auditd.install
 
 
 # 4.1.14 ==============================================================================================================
 
-- name: Configure auditd to collect events that delete files on 64bit systems
-  template:
-    src: CIS.log.file.deletion.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.file.deletion.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=="x86_64"
+- block:
+  - name: Configure auditd to collect events that delete files on 64bit systems
+    template:
+      src: CIS.log.file.deletion.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.file.deletion.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect events that delete files on 32bit systems
-  template:
-    src: CIS.log.file.deletion.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.file.deletion.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false
+    register: template_result1
+    become: yes
+    when: ansible_architecture=="x86_64"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect events that delete files on 32bit systems
+    template:
+      src: CIS.log.file.deletion.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.file.deletion.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+    
+    register: template_result2
+    become: yes
+    when: false
+
+  when: auditd.file_delete and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.14| Ensure file deletion events by users are collected']"
+    when: not auditd.file_delete
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.14| Ensure file deletion events by users are collected']" 
+    when: auditd.file_delete 
+          and (not template_result1.changed 
+              and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.14| Ensure file deletion events by users are collected']" 
+    when: auditd.file_delete
+          and (template_result1.changed
+              or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.14| Ensure file deletion events by users are collected']"
+  when: not auditd.install
 
 
 # 4.1.15 ==============================================================================================================
@@ -338,8 +817,30 @@
     owner: root
     group: root
     mode: 0600
-  become: yes
   
+  register: template_result
+  become: yes
+  when: auditd.sudoers and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.15| Ensure changes to system administration scope (sudoers) is collected']"
+    when: not auditd.sudoers
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.15| Ensure changes to system administration scope (sudoers) is collected']" 
+    when: auditd.sudoers and not template_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.15| Ensure changes to system administration scope (sudoers) is collected']" 
+    when: auditd.sudoers and template_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.15| Ensure changes to system administration scope (sudoers) is collected']"
+  when: not auditd.install
+
 
 # 4.1.16 ==============================================================================================================
 
@@ -350,31 +851,84 @@
     owner: root
     group: root
     mode: 0600
+
+  register: template_result
   become: yes
+  when: auditd.sudo_log and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.16| Ensure system administrator actions (sudolog) are collected']"
+    when: not auditd.sudo_log
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.16| Ensure system administrator actions (sudolog) are collected']" 
+    when: auditd.sudo_log and not template_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.16| Ensure system administrator actions (sudolog) are collected']" 
+    when: auditd.sudo_log and template_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.16| Ensure system administrator actions (sudolog) are collected']"
+  when: not auditd.install
 
 
 # 4.1.17 ==============================================================================================================
 
-- name: Configure auditd to collect module loading and unloading on 64bit systems
-  template:
-    src: CIS.log.modules.loading.unloading.64bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modules.loading.unloading.64bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: ansible_architecture=="x86_64"
+- block:
+  - name: Configure auditd to collect module loading and unloading on 64bit systems
+    template:
+      src: CIS.log.modules.loading.unloading.64bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modules.loading.unloading.64bit.rules
+      owner: root
+      group: root
+      mode: 0600
 
-# We just need to put the right condition for 32bit systems
-- name: Configure auditd to collect module loading and unloading on 32bit systems
-  template:
-    src: CIS.log.modules.loading.unloading.32bit.rules.j2
-    dest: /etc/audit/rules.d/CIS.log.modules.loading.unloading.32bit.rules
-    owner: root
-    group: root
-    mode: 0600
-  become: yes
-  when: false
+    register: template_result1
+    become: yes
+    when: ansible_architecture=="x86_64"
+
+  # We just need to put the right condition for 32bit systems
+  - name: Configure auditd to collect module loading and unloading on 32bit systems
+    template:
+      src: CIS.log.modules.loading.unloading.32bit.rules.j2
+      dest: /etc/audit/rules.d/CIS.log.modules.loading.unloading.32bit.rules
+      owner: root
+      group: root
+      mode: 0600
+
+    register: template_result2
+    become: yes
+    when: false
+
+  when: auditd.module_load_unload and auditd.install
+
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.17| Ensure kernel module loading and unloading is collected']"
+    when: not auditd.module_load_unload
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.17| Ensure kernel module loading and unloading is collected']" 
+    when: auditd.module_load_unload 
+          and (not template_result1.changed 
+              and not template_result2.changed)
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.17| Ensure kernel module loading and unloading is collected']" 
+    when: auditd.module_load_unload
+          and (template_result1.changed
+              or template_result2.changed)
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.17| Ensure kernel module loading and unloading is collected']"
+  when: not auditd.install
 
 
 # 4.1.18 ==============================================================================================================
@@ -388,26 +942,46 @@
     owner: root
     group: root
     mode: 0600
+
+  register: template_result
   become: yes
+  when: auditd.immutable and auditd.install
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|4.1.18| Ensure the audit configuration is immutable']"
+    when: not auditd.immutable
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|4.1.18| Ensure the audit configuration is immutable']" 
+    when: auditd.immutable and not template_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|4.1.18| Ensure the audit configuration is immutable']" 
+    when: auditd.immutable and template_result.changed
+  
+  when: auditd.install
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.1.18| Ensure the audit configuration is immutable']"
+  when: not auditd.install
+
 
 # =====================================================================================================================
 
-- name: Generate auditd rules from /etc/audit/rules.d/
-  shell: /sbin/augenrules
-  become: yes
+- block:
+  - name: Generate auditd rules from /etc/audit/rules.d/
+    shell: /sbin/augenrules
+    become: yes
 
-- name: Restart auditd service on Debian based distros
-  service: name=auditd state=restarted 
-  become: yes
-  when: ansible_os_family=="Debian"
+  - name: Restart auditd service on Debian based distros
+    service: name=auditd state=restarted 
+    become: yes
+    when: ansible_os_family=="Debian"
 
-- name: Restart auditd service on RedHat based distros
-  command: /sbin/service auditd restart
-  become: yes
-  when: ansible_os_family=="RedHat"
+  - name: Restart auditd service on RedHat based distros
+    command: /sbin/service auditd restart
+    become: yes
+    when: ansible_os_family=="RedHat"
 
-# - name: Reload auditd service using systemd.
-#   shell: augenrules
-
-
-# - debug: msg="{{hello_world}}"
+  when: auditd.install

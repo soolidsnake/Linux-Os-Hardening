@@ -89,8 +89,46 @@ auditd:
   configure_log_storage_size: yes
   # 4.1.1.2
   disable_system: yes
+  # 4.1.3
+  save_logs: yes
+
   # 4.1.2
   enable_service: yes
+  # 4.1.3
+  process_prior_auditd: yes
+  # 4.1.4
+  date_time: yes
+  #4.1.5
+  user_group: yes
+  #4.1.6
+  network_environ: yes
+  #4.1.7
+  mac: yes
+  #4.1.8
+  login_logout: yes
+  #4.1.9
+  session_init: yes
+  #4.1.10
+  dac: yes
+  #4.1.11
+  unsuccess_file_access: yes
+  #4.1.12
+  priv_commands: yes
+  #4.1.13
+  success_mount: yes
+  #4.1.14
+  file_delete: yes
+  #4.1.15
+  sudoers: yes
+  #4.1.16
+  sudo_log: yes
+  #4.1.17
+  module_load_unload: yes
+  # #4.1.18
+  immutable: yes
+
+
+
 # Your example.
 ssh:
   # This will be hardened. You have to do a check in your task to this variable.
