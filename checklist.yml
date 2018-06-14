@@ -131,6 +131,29 @@ auditd:
   # #4.1.18
   immutable: yes
 
+log:
+  #4.2.3
+  install: yes
+
+  #4.2.1.1
+  enable_rsyslog: yes
+  #4.2.1.2
+  config_rsyslog: yes
+  #4.2.1.3
+  rsyslog_file_perm: yes
+
+  #4.2.2.1
+  enable_syslogng: yes
+  #4.2.2.2
+  config_syslogng: yes
+  #4.2.2.3
+  syslogng_file_perm: yes
+
+  #4.2.4
+  file_perm: yes
+
+  #4.3
+  logrotate: yes
 
 
 # Your example.

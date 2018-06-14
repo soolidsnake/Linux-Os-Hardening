@@ -7,56 +7,105 @@
     name: rsyslog
     state: started
     enabled: yes
+
+  register: service_result
   become: yes
+  when: log.enable_rsyslog
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.1.1| Ensure rsyslog Service is enabled']"
+  when: not log.enable_rsyslog
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.1.1| Ensure rsyslog Service is enabled']" 
+  when: log.enable_rsyslog and not service_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.1.1| Ensure rsyslog Service is enabled']" 
+  when: log.enable_rsyslog and service_result.changed
+
 
 
 # 4.2.1.2 =============================================================================================================
 
-- name: Configure rsyslog logging
-  template:
-    src: CIS.rsyslog.conf.j2
-    dest: /etc/rsyslog.d/CIS.rsyslog.conf
-    owner: root
-    group: root
-    mode: 0644
-  become: yes
+- block:
+  - name: Configure rsyslog logging
+    template:
+      src: CIS.rsyslog.conf.j2
+      dest: /etc/rsyslog.d/CIS.rsyslog.conf
+      owner: root
+      group: root
+      mode: 0644
+    
+    register: template_result
+    become: yes
 
-- name: Apply rsyslog configurations
-  shell: /usr/bin/pkill -HUP rsyslogd
-  become: yes
+  - name: Apply rsyslog configurations
+    shell: /usr/bin/pkill -HUP rsyslogd
+    become: yes
+
+  when: log.config_rsyslog
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.1.2| Ensure logging is configured']"
+  when: not log.config_rsyslog
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.1.2| Ensure logging is configured']" 
+  when: log.config_rsyslog and not template_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.1.2| Ensure logging is configured']" 
+  when: log.config_rsyslog and template_result.changed
 
 
 # 4.2.1.3 =============================================================================================================
 
-- name: Configure rsyslog default log files permissions
-  lineinfile:
-    path: /etc/rsyslog.conf
-    regexp: '\$FileCreateMode'
-    line: '\$FileCreateMode 0640'
-  become: yes
+- block:
+  - name: Configure rsyslog default log files permissions
+    lineinfile:
+      path: /etc/rsyslog.conf
+      regexp: '\$FileCreateMode'
+      line: '$FileCreateMode 0640'
 
-- name: Find all .conf files in /etc/rsyslog.d/ directory
-  shell: find /etc/rsyslog.d/ -type f
-  register: find_result
-  changed_when: false
+    register: lineinfile_result
+    become: yes
 
-- name: Remove $FileCreateMode from .conf files under /etc/rsyslog.d/
-  lineinfile:
-    path: "{{item}}"
-    regexp: '\$FileCreateMode'
-    state: absent
+  - name: Find all .conf files in /etc/rsyslog.d/ directory
+    shell: find /etc/rsyslog.d/ -type f
+    register: find_result
+    changed_when: false
 
-  with_items: "{{find_result.stdout_lines}}"
-  become: yes
+  - name: Remove $FileCreateMode from .conf files under /etc/rsyslog.d/
+    lineinfile:
+      path: "{{item}}"
+      regexp: '\$FileCreateMode'
+      state: absent
+
+    with_items: "{{find_result.stdout_lines}}"
+    become: yes
+
+  when: log.rsyslog_file_perm
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.1.3| Ensure rsyslog default file permissions configured']"
+  when: not log.rsyslog_file_perm
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.1.3| Ensure rsyslog default file permissions configured']" 
+  when: log.rsyslog_file_perm and not lineinfile_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.1.3| Ensure rsyslog default file permissions configured']" 
+  when: log.rsyslog_file_perm and lineinfile_result.changed
 
 
 # 4.2.1.4 =============================================================================================================
 
-- name: Configure rsyslog to send logs to a remote log host
-  debug: msg="This task should be done manually according to the site policy."
-
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|4.2.1.4| Ensure rsyslog is configured to send logs to a remote log host']" 
 
 # 4.2.1.5 =============================================================================================================
 
-- name: Configure remote rsyslog server
-  debug: msg="This task should be done manually on the remote rsyslog server."
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|4.2.1.5| Ensure remote rsyslog messages are only accepted on designated log hosts']" 
