@@ -219,3 +219,12 @@ network:
   # tcp wrappers
   install_tcp_wrappers: yes
   configure_outbound_established_connections: yes
+
+  ignore_source_routed_packets: yes
+  ignore_icmp_redirects: yes
+  ignore_secure_icmp_redirects: yes
+  log_suspicious_packets: yes
+  ignore_broadcast_icmp: yes
+  ignore_bogus_icmp: yes
+  reverse_path_filtering: yes
+  tcp_syn_cookies: yes

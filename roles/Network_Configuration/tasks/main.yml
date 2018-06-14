@@ -4,4 +4,5 @@
 #- include: 02.IPv6.yml
 #- include: 03.Uncommon_Network_Protocols.yml
 #- include: 04.Firewall_Configuration.yml
-- include: 05.TCP_Wrappers.yml
+#- include: 05.TCP_Wrappers.yml
+- include: 06.Network_parameter_router_host.yml

@@ -7,7 +7,6 @@
   ignore_errors: yes
   changed_when: no
 
-- debug: msg={{grep_output}}
 
 - name: Disabling IP forwarding permanently
   register: change_state
@@ -66,7 +65,7 @@
   with_items:
     - { regexp: 'net.ipv4.conf.all.send_redirects',  line: 'net.ipv4.conf.all.send_redirects = 0' }
     - { regexp: 'net.ipv4.conf.default.send_redirects',  line: 'net.ipv4.conf.default.send_redirects = 0' }
-  when: network.disable_packet_redirect
+  when: grep_output.stdout == "net.ipv4.conf.all.send_redirects = 1" and network.disable_packet_redirect
   become: yes
 
 - name: Disabling packet redirect sending

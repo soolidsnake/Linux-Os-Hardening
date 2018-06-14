@@ -1,0 +1,396 @@
+---
+
+- name: Ensure source routed packets are not accepted
+  shell: "sysctl net.ipv4.conf.all.accept_source_route"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Ignore source routed packets permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'net.ipv4.conf.all.accept_source_route',  line: 'net.ipv4.conf.all.accept_source_route = 0' }
+    - { regexp: 'net.ipv4.conf.default.accept_source_route',  line: 'net.ipv4.conf.default.accept_source_route = 0' }
+  when: grep_output.stdout == "net.ipv4.conf.all.accept_source_route = 1" and network.ignore_source_routed_packets
+  become: yes
+  
+
+- name: Ignore source routed packets
+  shell : "sysctl -w net.ipv4.conf.all.accept_source_route=0 && 
+           sysctl -w net.ipv4.conf.default.accept_source_route=0 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.conf.all.accept_source_route = 1" and network.ignore_source_routed_packets
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.2.1| Ensure source routed packets are not accepted']" 
+  when: change_state.changed and network.ignore_source_routed_packets
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.2.1| Ensure source routed packets are not accepted']" 
+  when: not change_state.changed and network.ignore_source_routed_packets
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.2.1| Ensure source routed packets are not accepted']" 
+  when: not network.ignore_source_routed_packets
+
+
+
+
+
+
+
+
+
+- name: Ensure ICMP redirects are not accepted
+  shell: "sysctl net.ipv4.conf.all.accept_redirects"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Ignore ICMP redirects permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'net.ipv4.conf.all.accept_redirects',  line: 'net.ipv4.conf.all.accept_redirects = 0' }
+    - { regexp: 'net.ipv4.conf.default.accept_redirects',  line: 'net.ipv4.conf.default.accept_redirects = 0' }
+  when: grep_output.stdout == "net.ipv4.conf.all.accept_redirects = 1" and network.ignore_icmp_redirects
+  become: yes
+  
+
+- name: Ignore ICMP redirects
+  shell : "sysctl -w net.ipv4.conf.all.accept_redirects=0 && 
+           sysctl -w net.ipv4.conf.default.accept_redirects=0 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.conf.all.accept_redirects = 1" and network.ignore_icmp_redirects
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.2.2| Ensure ICMP redirects are not accepted']" 
+  when: change_state.changed and network.ignore_icmp_redirects
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.2.2| Ensure ICMP redirects are not accepted']" 
+  when: not change_state.changed and network.ignore_icmp_redirects
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.2.2| Ensure ICMP redirects are not accepted']" 
+  when: not network.ignore_icmp_redirects
+
+
+
+
+
+
+
+
+
+- name: Ensure secure ICMP redirects are not accepted
+  shell: "sysctl net.ipv4.conf.all.secure_redirects"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Ignore secure ICMP redirects permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'net.ipv4.conf.all.secure_redirects',  line: 'net.ipv4.conf.all.secure_redirects = 0' }
+    - { regexp: 'net.ipv4.conf.default.secure_redirects',  line: 'net.ipv4.conf.default.secure_redirects = 0' }
+  when: grep_output.stdout == "net.ipv4.conf.all.secure_redirects = 1" and network.ignore_icmp_redirects
+  become: yes
+  
+
+- name: Ignore secure ICMP redirects
+  shell : "sysctl -w net.ipv4.conf.all.secure_redirects=0 && 
+           sysctl -w net.ipv4.conf.default.secure_redirects=0 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.conf.all.secure_redirects = 1" and network.ignore_secure_icmp_redirects
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.2.3| Ensure secure ICMP redirects are not accepted']" 
+  when: change_state.changed and network.ignore_secure_icmp_redirects
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.2.3| Ensure secure ICMP redirects are not accepted']" 
+  when: not change_state.changed and network.ignore_secure_icmp_redirects
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.2.3| Ensure secure ICMP redirects are not accepted']" 
+  when: not network.ignore_secure_icmp_redirects
+
+
+
+
+
+
+- name: Ensure suspicious packets are logged
+  shell: "sysctl net.ipv4.conf.all.secure_redirects"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Log suspicious packets permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'sysctl net.ipv4.conf.all.log_martians',  line: 'sysctl net.ipv4.conf.all.log_martians = 1' }
+    - { regexp: 'net.ipv4.conf.default.log_martians',  line: 'net.ipv4.conf.default.log_martians = 1' }
+  when: grep_output.stdout == "net.ipv4.conf.all.log_martians = 1" and network.log_suspicious_packets
+  become: yes
+  
+
+- name: Log suspicious packets
+  shell : "sysctl -w net.ipv4.conf.all.log_martians=1 && 
+           sysctl -w net.ipv4.conf.default.log_martians=1 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.conf.all.log_martians = 0" and network.log_suspicious_packets
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.2.4| Ensure suspicious packets are logged']" 
+  when: change_state.changed and network.log_suspicious_packets
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.2.4| Ensure suspicious packets are logged']" 
+  when: not change_state.changed and network.log_suspicious_packets
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.2.4| Ensure suspicious packets are logged']" 
+  when: not network.log_suspicious_packets
+
+
+
+
+
+
+
+- name: Ensure broadcast ICMP requests are ignored
+  shell: "sysctl net.ipv4.icmp_echo_ignore_broadcasts"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Ignore broadcast ICMP requests permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: 'net.ipv4.icmp_echo_ignore_broadcasts'
+    line: 'net.ipv4.icmp_echo_ignore_broadcasts = 1'
+  become: yes
+  when: grep_output.stdout == "net.ipv4.icmp_echo_ignore_broadcasts = 0" and network.ignore_broadcast_icmp
+  
+
+- name: Ignore broadcast ICMP requests
+  shell : "sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.icmp_echo_ignore_broadcasts = 0" and network.ignore_broadcast_icmp
+
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.1.5| Ensure broadcast ICMP requests are ignored']" 
+  when: change_state.changed and network.ignore_broadcast_icmp
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.1.5| Ensure broadcast ICMP requests are ignored']" 
+  when: not change_state.changed and network.ignore_broadcast_icmp
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.1.5| Ensure broadcast ICMP requests are ignored']" 
+  when: not network.ignore_broadcast_icmp
+
+
+
+
+
+
+
+
+- name: Ensure bogus ICMP responses are ignored
+  shell: "sysctl net.ipv4.icmp_ignore_bogus_error_responses"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Ignore bogus ICMP responses permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: 'net.ipv4.icmp_ignore_bogus_error_responses'
+    line: 'net.ipv4.icmp_ignore_bogus_error_responses = 1'
+  become: yes
+  when: grep_output.stdout == "net.ipv4.icmp_ignore_bogus_error_responses = 0" and network.ignore_bogus_icmp
+  
+
+- name: Ignore bogus ICMP responses
+  shell : "sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.icmp_ignore_bogus_error_responses = 0" and network.ignore_bogus_icmp
+
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.1.6| Ensure bogus ICMP responses are ignored']" 
+  when: change_state.changed and network.ignore_bogus_icmp
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.1.6| Ensure bogus ICMP responses are ignored']" 
+  when: not change_state.changed and network.ignore_bogus_icmp
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.1.6| Ensure bogus ICMP responses are ignored']" 
+  when: not network.ignore_bogus_icmp
+
+
+
+
+
+
+
+
+
+
+- name: Ensure Reverse Path Filtering is enabled
+  shell: "sysctl net.ipv4.conf.all.rp_filter"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Enable Reverse Path Filtering permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: 'sysctl net.ipv4.conf.all.rp_filter',  line: 'sysctl net.ipv4.conf.all.rp_filter = 1' }
+    - { regexp: 'net.ipv4.conf.default.rp_filter',  line: 'net.ipv4.conf.default.rp_filter = 1' }
+  when: grep_output.stdout == "net.ipv4.conf.all.rp_filter = 0" and network.reverse_path_filtering
+  become: yes
+  
+
+- name: Enable Reverse Path Filtering
+  shell : "sysctl -w net.ipv4.conf.all.rp_filter=1 && 
+           sysctl -w net.ipv4.conf.default.rp_filter=1 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.conf.all.rp_filter = 1" and network.reverse_path_filtering
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.2.7| Ensure Reverse Path Filtering is enabled']" 
+  when: change_state.changed and network.reverse_path_filtering
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.2.7| Ensure Reverse Path Filtering is enabled']" 
+  when: not change_state.changed and network.reverse_path_filtering
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.2.7| Ensure Reverse Path Filtering is enabled']" 
+  when: not network.reverse_path_filtering
+
+
+
+
+
+
+
+
+
+
+- name: Ensure TCP SYN Cookies is enabled
+  shell: "sysctl net.ipv4.icmp_ignore_bogus_error_responses"
+  register: grep_output
+  check_mode: no
+  ignore_errors: yes
+  changed_when: no
+
+
+- name: Enable TCP SYN Cookies permanently
+  register: change_state
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    regexp: 'net.ipv4.tcp_syncookies'
+    line: 'net.ipv4.tcp_syncookies = 1'
+  become: yes
+  when: grep_output.stdout == "net.ipv4.tcp_syncookies = 0" and network.tcp_syn_cookies
+  
+
+- name: Enable TCP SYN Cookies
+  shell : "sysctl -w net.ipv4.tcp_syncookies=1 && 
+           sysctl -w net.ipv4.route.flush=1"
+  become: yes
+  when: grep_output.stdout == "net.ipv4.tcp_syncookies = 0" and network.tcp_syn_cookies
+
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|3.1.8| Ensure TCP SYN Cookies is enabled']" 
+  when: change_state.changed and network.tcp_syn_cookies
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|3.1.8| Ensure TCP SYN Cookies is enabled']" 
+  when: not change_state.changed and network.tcp_syn_cookies
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|3.1.8| Ensure TCP SYN Cookies is enabled']" 
+  when: not network.tcp_syn_cookies
