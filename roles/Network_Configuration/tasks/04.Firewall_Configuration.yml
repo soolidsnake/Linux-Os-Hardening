@@ -1,24 +1,25 @@
 ---
+
 - block: 
   - name: Ensure iptables is installed Debian
     apt:
-      name: iptables
+      name: iptables-persistent
       update_cache: yes
-    when: ansible_os_family=='Debian' and network.install_iptables
+    when: ansible_os_family=='Debian'
 
   - name: Ensure iptables is installed RedHat
     yum:
-      name: iptables
+      name: iptables-persistent
       update_cache: yes
-    when: ansible_os_family=='RedHat' and network.install_iptables
+    when: ansible_os_family=='RedHat'
 
-
-  # add condition
-#  - name: Ensure default deny firewall policy
-#    shell : "iptables -P INPUT   DROP && 
-#             iptables -P OUTPUT  DROP &&
-#             iptables -P FORWARD DROP"
-
+  - name: Ensure default deny firewall policy
+    shell :  "iptables -A INPUT -p tcp --dport 22 -j ACCEPT &&
+              iptables -A OUTPUT -p tcp --sport 22 -j ACCEPT &&
+              iptables -P INPUT   DROP && 
+              iptables -P OUTPUT  DROP &&
+              iptables -P FORWARD DROP"
+    when: network.configure_iptables
 
 
   - name: Ensure loopback traffic is configured
@@ -36,13 +37,15 @@
              iptables -A INPUT  -p tcp  -m state --state ESTABLISHED     -j ACCEPT &&
              iptables -A INPUT  -p udp  -m state --state ESTABLISHED     -j ACCEPT &&
              iptables -A INPUT  -p icmp -m state --state ESTABLISHED     -j ACCEPT"
-    when: network.configure_outbound_established_connections
+    when: network.configure_iptables
 
 
-  #- name: Ensure firewall rules exist for all open ports
-  #  shell : "iptables -A INPUT -p <protocol> --dport <port> -m state --state NEW -j ACCEPT"
+  - debug: msg="Please set iptables rules manually with the following command iptables -A INPUT -s <source/mask> -d <destination/mask> -p <protocol> --dport <port> -m state --state NEW -j ACCEPT"
+    when: network.configure_iptables
 
-  # disable wireless interfaces
+  - set_fact:
+      manual_patch: "{{manual_patch}} +  ['|3.6.5| Configure iptables rules: Please set iptables rules manually with the following command iptables -A INPUT -s <source/mask> -d <destination/mask> -p <protocol> --dport <port> -m state --state NEW -j ACCEPT']" 
+      when: network.configure_iptables
 
   become: yes
 

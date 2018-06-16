@@ -16,16 +16,6 @@
   - Network_Configuration # redhat && debian
   #- services
   #- filesystem
-  #- pam
   #- system_maintenance
   #- cron
-  #- Network_Configuration
-  # - filesystem
-  # - sshd
-  # - bootloader
-  # - warning.banners
-  # - update.and.patch
-  # - additional.process.hardening
-  # - filesystem
-  #- log.and.audit
   - save.logging.facts

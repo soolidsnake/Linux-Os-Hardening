@@ -236,8 +236,8 @@ network:
   disable_tipc: yes
 
   # firewall
-  install_iptables: yes
   configure_loopback_traffic: yes
+  configure_iptables: yes
 
   # tcp wrappers
   install_tcp_wrappers: yes
