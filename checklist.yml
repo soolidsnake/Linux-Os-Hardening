@@ -218,6 +218,9 @@ services:
   uninstall_telnet: yes
   uninstall_openldap_clients: yes
 
+  configure_chrony: no
+  configure_ntp: yes
+
 
 network:
   # IPV4

@@ -13,8 +13,8 @@
   #- pam
   #- system_maintenance # redhat && debian
   #- cron # redhat && debian
-  - Network_Configuration # redhat && debian
-  #- services
+  #- Network_Configuration # redhat && debian
+  - services
   #- filesystem
   #- system_maintenance
   #- cron
