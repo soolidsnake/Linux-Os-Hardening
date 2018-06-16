@@ -3,17 +3,32 @@
 
 # 4.2.4 ===============================================================================================================
 
-- name: Find all log files with innapropriate permissions
-  shell: find /var/log -type f -perm /037 
-  register: find_output
-  become: yes
+- block: 
+  - name: Find all log files with innapropriate permissions
+    shell: find /var/log -type f -perm /037 
+    register: find_output
+    changed_when: false
+    become: yes
 
-# - debug: msg="{{find_output.stdout_lines}}"
+  - name: Remove innapropriate permissions from log files in /var/log/
+    file:
+      path: "{{item}}"
+      # state: file
+      mode: "g-wx,o-rwx"
+    with_items: "{{find_output.stdout_lines}}"
+    become: yes
 
-- name: Remove innapropriate permissions from log files in /var/log/
-  file:
-    path: "{{item}}"
-    # state: file
-    mode: "g-wx,o-rwx"
-  with_items: "{{find_output.stdout_lines}}"
-  become: yes
+  when: log.file_perm
+
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.4| Ensure permissions on all log files are configured']"
+  when: not log.file_perm
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.4| Ensure permissions on all log files are configured']" 
+  when: log.file_perm and find_output.stdout == ""
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.4| Ensure permissions on all log files are configured']" 
+  when: log.file_perm and find_output.stdout != ""
