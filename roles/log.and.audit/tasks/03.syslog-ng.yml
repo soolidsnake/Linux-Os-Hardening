@@ -7,73 +7,114 @@
     name: syslog-ng
     state: started
     enabled: yes
+  
+  register: service_result
   become: yes
+  when: log.enable_syslogng
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.2.1| Ensure syslog-ng service is enabled']"
+  when: not log.enable_syslogng
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.2.1| Ensure syslog-ng service is enabled']" 
+  when: log.enable_syslogng and not service_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.2.1| Ensure syslog-ng service is enabled']" 
+  when: log.enable_syslogng and service_result.changed
+
 
 
 # 4.2.2.2 =============================================================================================================
 
-- name: Configure syslog-ng logging
-  blockinfile: 
-    path: /etc/syslog-ng/syslog-ng.conf
-    block: |
-        log { source(src); source(chroots); filter(f_console); destination(console); };
-        log { source(src); source(chroots); filter(f_console); destination(xconsole); };
-        log { source(src); source(chroots); filter(f_newscrit); destination(newscrit); };
-        log { source(src); source(chroots); filter(f_newserr); destination(newserr); };
-        log { source(src); source(chroots); filter(f_newsnotice); destination(newsnotice); };
-        log { source(src); source(chroots); filter(f_mailinfo); destination(mailinfo); };
-        log { source(src); source(chroots); filter(f_mailwarn); destination(mailwarn); };
-        log { source(src); source(chroots); filter(f_mailerr); destination(mailerr); };
-        log { source(src); source(chroots); filter(f_mail); destination(mail); };
-        log { source(src); source(chroots); filter(f_acpid); destination(acpid);  flags(final); };
-        log { source(src); source(chroots); filter(f_acpid_full); destination(devnull); flags(final); };
-        log { source(src); source(chroots); filter(f_acpid_old); destination(acpid); flags(final); };
-        log { source(src); source(chroots); filter(f_netmgm); destination(netmgm); flags(final); };
-        log { source(src); source(chroots); filter(f_local); destination(localmessages); };
-        log { source(src); source(chroots); filter(f_messages); destination(messages); };
-        log { source(src); source(chroots); filter(f_iptables); destination(firewall); };
-        log { source(src); source(chroots); filter(f_warn); destination(warn); };
-    create: yes
-  become: yes
+- block:
+  - name: Configure syslog-ng logging
+    template:
+      dest: /etc/syslog-ng/conf.d/CIS.syslog-ng.conf
+      src: CIS.syslog-ng.conf.j2 
+      owner: root 
+      mode: 0644 
+      group: root 
+    
+    register: template_result
+    become: yes
 
-- name: Apply syslog-ng configurations
-  shell: /usr/bin/pkill -HUP syslog-ng
-  become: yes
-  changed_when: false
+  - name: Apply syslog-ng configurations
+    shell: /usr/bin/pkill -HUP syslog-ng
+    become: yes
+    changed_when: false
+
+  when: log.config_syslogng
+
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.2.2| Ensure logging is configured']"
+  when: not log.config_syslogng
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.2.2| Ensure logging is configured']" 
+  when: log.config_syslogng and not template_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.2.2| Ensure logging is configured']" 
+  when: log.config_syslogng and template_result.changed
 
 
 # 4.2.2.3 =============================================================================================================
 
-- name: Read /etc/syslog-ng/syslog-ng.conf content
-  shell: cat /etc/syslog-ng/syslog-ng.conf
-  register: syslog_conf_content
-  changed_when: false
+- block:
+  - name: Read /etc/syslog-ng/syslog-ng.conf content
+    shell: cat /etc/syslog-ng/syslog-ng.conf
+    register: syslog_conf_content
+    changed_when: false
 
-- name: Configure syslog-ng default log files permissions
-  replace:
-    path: /etc/syslog-ng/syslog-ng.conf
-    regexp: '(options \{[^\}]*)perm\(.*?;'
-    replace: '\1perm(0640);'
-  become: yes
-  when: syslog_conf_content.stdout is search("perm\(\d+\)")
+  - name: Configure syslog-ng default log files permissions
+    replace:
+      path: /etc/syslog-ng/syslog-ng.conf
+      regexp: '(options \{[^\}]*)perm\(.*?;'
+      replace: '\1perm(0640);'
+
+    register: replace_result1
+    become: yes
+    when: syslog_conf_content.stdout is search("perm\(\d+\)")
 
 
-- name: Configure syslog-ng default log files permissions
-  replace: 
-    path: /etc/syslog-ng/syslog-ng.conf
-    regexp: '(options \{[^\}]*\);)'
-    replace: '\1 perm(0640);'
-  become: yes
-  when: syslog_conf_content.stdout is not search("perm\(\d+\)")
+  - name: Configure syslog-ng default log files permissions
+    replace: 
+      path: /etc/syslog-ng/syslog-ng.conf
+      regexp: '(options \{[^\}]*\);)'
+      replace: '\1 perm(0640);'
+
+    register: replace_result2
+    become: yes
+    when: syslog_conf_content.stdout is not search("perm\(\d+\)")
+
+  when: log.syslogng_file_perm
+
+
+- set_fact:
+    not_done: "{{not_done}} + ['|4.2.2.3| Ensure syslog-ng default file permissions configured']"
+  when: not log.syslogng_file_perm
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.2.2.3| Ensure syslog-ng default file permissions configured']" 
+  when: log.syslogng_file_perm 
+        and (not replace_result1.changed and not replace_result2.changed)
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.2.2.3| Ensure syslog-ng default file permissions configured']" 
+  when: log.syslogng_file_perm 
+        and (replace_result1.changed or replace_result2.changed)
 
 
 # 4.2.2.4 =============================================================================================================
 
-- name: Configure syslog-ng to send logs to a remote log host
-  debug: msg="This task should be done manually according to the site policy."
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|4.2.2.4| Ensure syslog-ng is configured to send logs to a remote log host']" 
 
 
 # 4.2.2.5 =============================================================================================================
 
-- name: Configure remote syslog-ng server
-  debug: msg="This task should be done manually on the remote rsyslog server."
+- set_fact:
+    manual_patch: "{{manual_patch}} + ['|4.2.1.5| Ensure remote syslog-ng messages are only accepted on designated log hosts']" 
