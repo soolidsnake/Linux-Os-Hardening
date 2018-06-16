@@ -2,16 +2,43 @@
 
 # 4.2.5 ===============================================================================================================
 
-- name: Configure logrotate
-  debug: msg="This task should be done manually to make sure that the log files are rotated
-      according to the site policy."
+- block:
+  - name: Configure logrotate for rsyslog
+    template:
+      dest: /etc/logrotate.d/rsyslog
+      src: CIS.logrotate_rsyslog.j2
+      owner: root
+      group: root
+      mode: 0644
+    
+    register: template_result1
+    become: yes
+
+  - name: Configure logrotate for syslog-ng
+    template:
+      dest: /etc/logrotate.d/syslog-ng
+      src: CIS.logrotate_syslogng.j2
+      owner: root 
+      group: root 
+      mode: 0644 
+    
+    register: template_result2
+    become: yes
+
+  when: log.logrotate
 
 
-- name: Trying ara_record
-  ara_record:
-    key: "This is a test"
-    value: "This is a value test"
-- name: Trying ara_record
-  ara_record:
-    key: "This is a test"
-    value: "This is a value test2"
+- set_fact:
+    not_done: "{{not_done}} + ['|4.3| Ensure logrotate is configured']"
+  when: not log.logrotate
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|4.3| Ensure logrotate is configured']" 
+  when: log.logrotate
+        and (not template_result1.changed and not template_result2.changed)
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|4.3| Ensure logrotate is configured']" 
+  when: log.logrotate
+        and (template_result1.changed or template_result2.changed)
+
