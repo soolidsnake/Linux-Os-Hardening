@@ -1,19 +1,23 @@
 ---
 - name: Hardening systems on the network 
-  hosts: testServer
+  hosts: Servers
   # become: no
 
   vars_files:
   - checklist.yml
+  - secrets.yml
 
   roles:
   - init.logging.facts
+<<<<<<< HEAD
   #- sshd
   #- pam
   #- system_maintenance 
   #- cron 
   #- Network_Configuration
   - services
+=======
+>>>>>>> Add sensitive informations in 'secrets.yml'
   - filesystem
   - filesystem.integrity.checking
   - bootloader
