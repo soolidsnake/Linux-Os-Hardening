@@ -72,7 +72,7 @@
 #already done
 - set_fact:
     already_done_patch: "{{already_done_patch}} + ['|2.2.1.2| Ensure ntp is configured']" 
-  when: not change_state_1.changed or not change_state_2.changed and services.configure_ntp
+  when: not change_state_1.changed or not change_state_2_debian.changed or change_state_2_redhat.changed and services.configure_ntp
 
 #not done
 - set_fact:

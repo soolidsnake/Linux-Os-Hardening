@@ -8,11 +8,11 @@
 
   roles:
   - init.logging.facts
-  - sshd
-  - pam
-  - system_maintenance 
-  - cron 
-  - Network_Configuration
+  #- sshd
+  #- pam
+  #- system_maintenance 
+  #- cron 
+  #- Network_Configuration
   - services
   - filesystem
   - filesystem.integrity.checking
