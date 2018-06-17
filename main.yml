@@ -9,20 +9,17 @@
 
   roles:
   - init.logging.facts
-<<<<<<< HEAD
+  #- cron
+  #- services
   #- sshd
+  #- system_maintenance
+  #- filesystem
+  #- filesystem.integrity.checking
+  #- bootloader
+  #- additional.process.hardening
+  #- warning.banners
+  #- update.and.patch
+  #- log.and.audit
+  - Network_Configuration
   #- pam
-  #- system_maintenance 
-  #- cron 
-  #- Network_Configuration
-  - services
-=======
->>>>>>> Add sensitive informations in 'secrets.yml'
-  - filesystem
-  - filesystem.integrity.checking
-  - bootloader
-  - additional.process.hardening
-  - warning.banners
-  - update.and.patch
-  - log.and.audit
   - save.logging.facts

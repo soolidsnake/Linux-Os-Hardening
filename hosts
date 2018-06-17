@@ -1,5 +1,5 @@
 # This is a group of hosts
 [Servers]
 #192.168.6.250 ansible_user=haha
-192.168.6.138 ansible_user=harden ansible_become_pass={{user_password}}
-192.168.6.139 ansible_user=harden ansible_become_pass={{user_password}}
+192.168.226.128 ansible_user=ubuntu ansible_become_pass={{user_password}}
+192.168.226.137 ansible_user=root ansible_become_pass={{user_password}}
