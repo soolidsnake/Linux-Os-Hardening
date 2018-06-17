@@ -8,13 +8,17 @@
 
   roles:
   - init.logging.facts
-  #- {role: filesystem, tags: [harden_level2]}
-  #- sshd # redhat && debian
-  #- pam
-  #- system_maintenance # redhat && debian
-  #- cron # redhat && debian
-  #- Network_Configuration # redhat && debian
+  - sshd
+  - pam
+  - system_maintenance 
+  - cron 
+  - Network_Configuration
   - services
-  #- system_maintenance
-  #- cron
+  - filesystem
+  - filesystem.integrity.checking
+  - bootloader
+  - additional.process.hardening
+  - warning.banners
+  - update.and.patch
+  - log.and.audit
   - save.logging.facts

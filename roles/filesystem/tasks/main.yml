@@ -9,4 +9,4 @@
 - include: 08.harden.dev_shm.partition.yml
 - include: 09.harden.removable.medias.yml
 - include: 10.harden.world.writable.directories.yml
-# - include: 11.disable.automounting.yml
+ - include: 11.disable.automounting.yml
