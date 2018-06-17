@@ -1,52 +1,116 @@
 ---
-# For Ubuntu
-- block:
-  - name: Harden '/boot/grub/grub.cfg' permissions and ownership
-    file:
-      path: "/boot/grub/grub.cfg"
-      owner: "root"
-      group: "root"
-      mode: "g-rwx,o-rwx"
-    become: yes
 
-  - name: Protect the bootloader with a password
-    debug: msg="It is too dangerous to set a password for the bootloader automatically from here,
-        You should manually log into that machine and perform the operation. 
-        A script will be generated that will let you protect the bootloader with a password when you log 
-        to the machine."
 
-  - name: Require authentication for single user mode
-    debug: msg="It is too dangerous to set the root user password from here,
-        You should manually log into that machine and perform the operation. 
-        A script will be generated that will let you create the root user password when you log 
-        to the machine."
+# 1.4.1 ===============================================================================================================
 
+- name: Harden '/boot/grub/grub.cfg' permissions and ownership
+  file:
+    path: "/boot/grub/grub.cfg"
+    owner: "root"
+    group: "root"
+    mode: "g-rwx,o-rwx"
+
+  register: file_result1
+  become: yes
   when: ansible_distribution=="Ubuntu"
 
+- name: Harden '/boot/grub2/grub.cfg' permissions and ownership
+  file:
+    path: "/boot/grub2/grub.cfg"
+    owner: "root"
+    group: "root"
+    mode: "g-rwx,o-rwx"
 
-
-# For RedHat and CentOS
-- block:
-  - name: Harden '/boot/grub2/grub.cfg' permissions and ownership
-    file:
-      path: "/boot/grub2/grub.cfg"
-      owner: "root"
-      group: "root"
-      mode: "g-rwx,o-rwx"
-    become: yes
-
-  - name: Protect the bootloader with a password
-    debug: msg="It is too dangerous to set a password for the bootloader automatically from here,
-        You should manually log into that machine and perform the operation. 
-        A script will be generated that will let you protect the bootloader with a password when you log 
-        to the machine."
-
-  - name: Require authentication for single user mode
-    debug: msg="It is too dangerous to set the root user password from here,
-        You should manually log into that machine and perform the operation. 
-        A script will be generated that will let you create the root user password when you log 
-        to the machine."
-
+  register: file_result2
+  become: yes
   # I didn't use ansible_os_family because I'm not sure that this will work on fedora too.
   when: ansible_distribution=="CentOS" or ansible_distribution=="RedHat"
+
+- set_fact:
+    not_done: "{{not_done}} + ['|1.4.1| Ensure permissions on bootloader config are configured']"
+  when: not bootloader.file_perm
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.4.1| Ensure permissions on bootloader config are configured']" 
+  when: bootloader.file_perm 
+        and (not file_result1.changed and not file_result2.changed)
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.4.1| Ensure permissions on bootloader config are configured']" 
+  when: bootloader.file_perm 
+        and (file_result1.changed or file_result2.changed)
+
+
+# 1.4.2 ===============================================================================================================
+
+- name: Protect the bootloader with a password
+  blockinfile:
+    path: /etc/grub.d/40_custom 
+    owner: root 
+    group: root 
+    create: yes 
+    # This password is "haha"
+    block: |
+      set superusers="root"
+      password_pbkdf2 root {{grub_password}}
+    state: present 
+    mode: 0755
+
+  register: blockinfile_result
+  become: yes
   
+- name: Update grub on Debian based distros
+  shell: update-grub
+
+  become: yes
+  changed_when: false
+  when: ansible_os_family=="Debian"
+
+- name: Update grub on RedHat based distros
+  shell: grub2-mkconfig -o /boot/grub2/grub.cfg
+
+  become: yes
+  changed_when: false
+  when: ansible_os_family=="RedHat"
+
+
+- set_fact:
+    not_done: "{{not_done}} + ['|1.4.2| Ensure bootloader password is set']"
+  when: not bootloader.grub_pass
+
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|1.4.2| Ensure bootloader password is set']" 
+  when: bootloader.grub_pass and not blockinfile_result.changed
+
+- set_fact:
+    done_patch: "{{done_patch}} + ['|1.4.2| Ensure bootloader password is set']" 
+  when: bootloader.grub_pass and blockinfile_result.changed
+
+
+# 1.4.3 ===============================================================================================================
+
+- name: Configure authentication for single user mode
+  user:
+    name: root
+    # The password is "hello"
+    # This command is used to generate this crypted password : mkpasswd --method=sha-512
+    password: "{{single_user_mode_pass}}"
+
+  register: user_result
+  become: yes
+  when: bootloader.single_user_mode_pass and ansible_os_family=="Debian" 
+
+- block:
+  - set_fact:
+      not_done: "{{not_done}} + ['|1.4.3| Ensure authentication is required for single user mode']"
+    when: not bootloader.single_user_mode_pass
+
+  - set_fact:
+      already_done_patch: "{{already_done_patch}} + ['|1.4.3| Ensure authentication is required for single user mode']" 
+    when: bootloader.single_user_mode_pass and not user_result.changed
+
+  - set_fact:
+      done_patch: "{{done_patch}} + ['|1.4.3| Ensure authentication is required for single user mode']" 
+    when: bootloader.single_user_mode_pass and user_result.changed
+
+  when: ansible_os_family=="Debian"
