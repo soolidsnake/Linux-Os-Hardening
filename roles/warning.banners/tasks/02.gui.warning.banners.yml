@@ -35,7 +35,7 @@
 
 
   become: yes
-  when: warn_banner.gdm and ansible_env.GDMSESSION is defined
+  when: warn_banner.gdm
 
 - set_fact:
     not_done: "{{not_done}} + ['|1.7.2| Ensure GDM login banner is configured']"
