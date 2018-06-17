@@ -51,14 +51,23 @@
     path: "/etc/init.d/ntp"
     regexp: 'RUNASUSER'
     line: 'RUNASUSER=ntp' 
-  register: change_state_2
+  register: change_state_2_debian
   become: yes
-  when: services.configure_ntp
+  when: services.configure_ntp and ansible_os_family=='Debian'
+
+- name: Ensure ntp is configured
+  lineinfile:
+    path: "/etc/sysconfig/ntpd"
+    regexp: 'OPTIONS='
+    line: 'OPTIONS="-u ntp:ntp"' 
+  register: change_state_2_redhat
+  become: yes
+  when: services.configure_ntp and ansible_os_family=='RedHat'
 
 #done
 - set_fact:
     done_patch: "{{done_patch}} + ['|2.2.1.2| Ensure ntp is configured']" 
-  when: change_state_1.changed or change_state_2.changed and services.configure_ntp
+  when: change_state_1.changed or change_state_2_debian.changed or change_state_2_redhat.changed and services.configure_ntp
 
 #already done
 - set_fact:

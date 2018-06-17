@@ -109,8 +109,12 @@
 - name: update grub
   shell: "update-grub"
   become: yes
-  when:  network.deactivate_ipv6
+  when:  network.deactivate_ipv6 and ansible_os_family=='Debian'
 
+- name: update grub
+  shell: "grub2-mkconfig > /boot/grub2/grub.cfg"
+  become: yes
+  when:  network.deactivate_ipv6 and ansible_os_family=='RedHat'
   
   #done
 - set_fact:

@@ -9,7 +9,7 @@
 
   - name: Ensure iptables is installed RedHat
     yum:
-      name: iptables-persistent
+      name: iptables
       update_cache: yes
     when: ansible_os_family=='RedHat'
 

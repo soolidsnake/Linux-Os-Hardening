@@ -15,7 +15,6 @@
   #- cron # redhat && debian
   #- Network_Configuration # redhat && debian
   - services
-  #- filesystem
   #- system_maintenance
   #- cron
   - save.logging.facts

@@ -1,5 +1,5 @@
 ---
 #- include: 01.inetd_Services.yml
 - include: 02.Time_Synchronization.yml
-#- include: 03.deactivate_services.yml
-#- include: 04.Service_Clients.yml
+- include: 03.deactivate_services.yml
+- include: 04.Service_Clients.yml
