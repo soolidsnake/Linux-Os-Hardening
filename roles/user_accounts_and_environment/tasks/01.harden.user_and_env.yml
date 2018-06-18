@@ -9,6 +9,13 @@
   become: yes
   when: user_and_accounts.passwd_expiration
 
+- name:  Ensure password expiration is 365 days or less
+  shell: chage --maxdays 90 {{item.split(':')[0]}}
+  when: (item.split(':')[2]|int >= 1000 or item.split(':')[2]|int == 0) and item.split(':')[2]|int != 65534 and user_and_accounts.passwd_expiration
+  become: yes
+  with_items: "{{passwd_content.stdout_lines}}"
+
+
 #done
 - set_fact:
     done_patch: "{{done_patch}} + ['|5.4.1| Ensure password expiration is 365 days or less']" 
@@ -36,6 +43,15 @@
   register: change_state
   become: yes
   when: user_and_accounts.min_between_passwd_change
+
+
+- name:  Ensure minimum days between password changes is 7 or more
+  shell: chage --mindays 7 {{item.split(':')[0]}}
+  when: (item.split(':')[2]|int >= 1000 or item.split(':')[2]|int == 0) and item.split(':')[2]|int != 65534 and user_and_accounts.passwd_expiration
+  become: yes
+  with_items: "{{passwd_content.stdout_lines}}"
+
+
 
 #done
 - set_fact:
@@ -65,6 +81,14 @@
   register: change_state
   become: yes
   when: user_and_accounts.passwd_expriration_warning
+
+
+- name:  Ensure password expiration warning days is 7 or more
+  shell: chage --warndays 7 {{item.split(':')[0]}}
+  when: (item.split(':')[2]|int >= 1000 or item.split(':')[2]|int == 0) and item.split(':')[2]|int != 65534 and user_and_accounts.passwd_expiration
+  become: yes
+  with_items: "{{passwd_content.stdout_lines}}"
+
 
 #done
 - set_fact:
