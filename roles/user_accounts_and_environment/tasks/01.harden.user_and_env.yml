@@ -151,6 +151,31 @@
   when: not user_and_accounts.inactive_account_lock
 
 
+# 5.4.2 ===============================================================================================================
+
+- name: Ensure system accounts are non-login
+  shell: 'egrep -v "^\+" /etc/passwd | awk -F: ''($1!="root" && $1!="sync" && $1!="shutdown" && $1!="halt" && $3<1000 && $7!="/usr/sbin/nologin" && $7!="/bin/false"  && $7!="/sbin/nologin" && $7!="/dev/null") {print}'' '
+  register: grep_output
+
+- name: Ensure system accounts are non-login
+  script: script.sh
+  become: yes
+  when: grep_output.stdout != "" and user_and_accounts.app_accounts_nologin
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.2| Ensure system accounts are non-login']" 
+  when: grep_output.stdout != "" and user_and_accounts.app_accounts_nologin
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.2| Ensure system accounts are non-login']" 
+  when: grep_output.stdout == "" and user_and_accounts.app_accounts_nologin
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.2| Ensure system accounts are non-login']" 
+  when: not user_and_accounts.app_accounts_nologin
 
 
 
