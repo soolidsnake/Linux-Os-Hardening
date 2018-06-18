@@ -182,9 +182,9 @@ ssh:
 
 
 pam:
-  allow_3_tries_before_failure: no
-  set_policy: no
-  lockout_failed_attempts: no
+  allow_3_tries_before_failure: yes
+  set_policy: yes
+  lockout_failed_attempts: yes
   password_reuse_limit_and_sha512_as_default: no
 
 
@@ -263,3 +263,15 @@ network:
   ignore_bogus_icmp: yes
   reverse_path_filtering: yes
   tcp_syn_cookies: yes
+
+
+user_and_accounts:
+  passwd_expiration: yes
+  min_between_passwd_change: yes
+  passwd_expriration_warning: yes
+  inactive_account_lock: yes
+
+  default_group_root_0: yes
+  user_shell_timeout: yes
+  restricted_root_login_physical_consoles: yes
+  restricted_su: yes

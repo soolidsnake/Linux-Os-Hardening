@@ -7,11 +7,16 @@
       update_cache: yes
     when: ansible_os_family=='Debian'
 
+
   - name: Ensure iptables is installed RedHat
     yum:
       name: iptables
       update_cache: yes
     when: ansible_os_family=='RedHat'
+
+
+
+
 
   - name: Ensure default deny firewall policy
     shell :  "iptables -A INPUT -p tcp --dport 22 -j ACCEPT &&
@@ -46,6 +51,39 @@
   - set_fact:
       manual_patch: "{{manual_patch}} +  ['|3.6.5| Configure iptables rules: Please set iptables rules manually with the following command iptables -A INPUT -s <source/mask> -d <destination/mask> -p <protocol> --dport <port> -m state --state NEW -j ACCEPT']" 
       when: network.configure_iptables
+
+
+
+  - name: saving rules v4
+    shell: "iptables-save > /etc/iptables/rules.v4"
+    when: network.configure_iptables and ansible_os_family=='Debian'
+
+  - name: saving rules v6
+    shell: "iptables-save > /etc/iptables/rules.v6"
+    when: network.configure_iptables and ansible_os_family=='Debian'
+
+  - name: saving rules
+    shell: "systemctl disable firewalld"
+    when: network.configure_iptables and ansible_os_family=='RedHat'
+
+
+  - name: Ensure iptables is installed RedHat
+    yum:
+      name: iptables-services
+      update_cache: yes
+    when: ansible_os_family=='RedHat'
+
+
+  - name: Enable iptables service
+    shell: "systemctl enable iptables"
+    when: network.configure_iptables and ansible_os_family=='RedHat'
+
+
+  - name: saving rules
+    shell: "/sbin/service iptables save"
+    when: network.configure_iptables and ansible_os_family=='RedHat'
+
+
 
   become: yes
 
