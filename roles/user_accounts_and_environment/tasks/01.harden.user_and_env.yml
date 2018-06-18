@@ -1,0 +1,246 @@
+---
+
+- name: Ensure password expiration is 365 days or less
+  lineinfile:
+    path: "/etc/login.defs"
+    regexp: 'PASS_MAX_DAYS'
+    line: 'PASS_MAX_DAYS 90' 
+  register: change_state
+  become: yes
+  when: user_and_accounts.passwd_expiration
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.1| Ensure password expiration is 365 days or less']" 
+  when: change_state.changed and user_and_accounts.passwd_expiration
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.1| Ensure password expiration is 365 days or less']" 
+  when: not change_state.changed  and user_and_accounts.passwd_expiration
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.1| Ensure password expiration is 365 days or less']" 
+  when: not user_and_accounts.passwd_expiration
+
+
+
+
+
+- name: Ensure minimum days between password changes is 7 or more
+  lineinfile:
+    path: "/etc/login.defs"
+    regexp: 'PASS_MIN_DAYS'
+    line: 'PASS_MIN_DAYS 7' 
+  register: change_state
+  become: yes
+  when: user_and_accounts.min_between_passwd_change
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.2| Ensure minimum days between password changes is 7 or more']" 
+  when: change_state.changed and user_and_accounts.min_between_passwd_change
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.2| Ensure minimum days between password changes is 7 or more']" 
+  when: not change_state.changed and user_and_accounts.min_between_passwd_change
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.2| Ensure minimum days between password changes is 7 or more']" 
+  when: not user_and_accounts.min_between_passwd_change
+
+
+
+
+
+
+- name: Ensure password expiration warning days is 7 or more
+  lineinfile:
+    path: "/etc/login.defs"
+    regexp: 'PASS_WARN_AGE'
+    line: 'PASS_WARN_AGE 7' 
+  register: change_state
+  become: yes
+  when: user_and_accounts.passwd_expriration_warning
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.2| Ensure password expiration warning days is 7 or more']" 
+  when: change_state.changed and user_and_accounts.passwd_expriration_warning
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.2| Ensure password expiration warning days is 7 or more']" 
+  when: not change_state.changed and user_and_accounts.passwd_expriration_warning
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.2| Ensure password expiration warning days is 7 or more']" 
+  when: not user_and_accounts.passwd_expriration_warning
+
+
+
+
+
+
+- name: Check inactive password lock is 30 days or less
+  register: cmd_output
+  shell: "useradd -D"
+  become: yes
+  when: user_and_accounts.inactive_account_lock
+
+- name: Ensure inactive password lock is 30 days or less
+  shell: "useradd -D -f 30"
+  become: yes
+  when:  '"INACTIVE=30" not in cmd_output.stdout and user_and_accounts.inactive_account_lock'
+
+
+- name: get passwd content
+  shell: "cat /etc/passwd"
+  register: passwd_content
+
+- name: Ensure inactive password lock is 30 days or less
+  shell: chage --inactive 30 {{item.split(':')[0]}}
+  when: (item.split(':')[2]|int >= 1000 or item.split(':')[2]|int == 0) and item.split(':')[2]|int != 65534 and user_and_accounts.inactive_account_lock and "INACTIVE=30" not in cmd_output.stdout
+  become: yes
+  with_items: "{{passwd_content.stdout_lines}}"
+
+
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.3| Ensure inactive password lock is 30 days or less']" 
+  when: '"INACTIVE=30" not in cmd_output.stdout and user_and_accounts.inactive_account_lock'
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.3| Ensure inactive password lock is 30 days or less']" 
+  when: '"INACTIVE=30"  in cmd_output.stdout and user_and_accounts.inactive_account_lock'
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.3| Ensure inactive password lock is 30 days or less']" 
+  when: not user_and_accounts.inactive_account_lock
+
+
+
+
+
+
+
+
+
+
+
+
+- name: check default group for the root account
+  register: cmd_output
+  shell: "grep '^root:' /etc/passwd | cut -f4 -d:"
+  become: yes
+  when: user_and_accounts.default_group_root_0
+
+
+
+
+- name: Ensure default group for the root account is GID 0
+  shell: "usermod -g 0 root"
+  become: yes
+  when: cmd_output.stdout != '0' and user_and_accounts.default_group_root_0
+
+
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.3| Ensure default group for the root account is GID 0']" 
+  when: cmd_output.stdout != "0" and user_and_accounts.default_group_root_0
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.3| Ensure default group for the root account is GID 0']" 
+  when: cmd_output.stdout == "0" and user_and_accounts.default_group_root_0
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.3| Ensure default group for the root account is GID 0']" 
+  when: not user_and_accounts.default_group_root_0
+
+
+
+
+
+#5.4.4 Ensure default user umask is 027 or more restrictive
+
+
+
+
+
+- name: Ensure default user shell timeout is 900 seconds or less
+  lineinfile:
+    path:   "/etc/bashrc"
+    regexp: "{{item.regexp}}"
+    line:   "{{item.line}}"
+    create: yes
+  with_items:
+    - { regexp: '^TMOUT',  line: 'TMOUT=600' }
+    - { regexp: '^TMOUT',  line: 'TMOUT=600' }
+  register: change_state
+  become: yes
+  when: user_and_accounts.user_shell_timeout
+
+#done
+- set_fact:
+    done_patch: "{{done_patch}} + ['|5.4.5| Ensure default user shell timeout is 900 seconds or less']" 
+  when: change_state.changed and user_and_accounts.user_shell_timeout
+
+#already done
+- set_fact:
+    already_done_patch: "{{already_done_patch}} + ['|5.4.5| Ensure default user shell timeout is 900 seconds or less']" 
+  when: change_state.changed and user_and_accounts.user_shell_timeout
+
+#not done
+- set_fact:
+    not_done: "{{not_done}} + ['|5.4.5| Ensure default user shell timeout is 900 seconds or less']" 
+  when: not user_and_accounts.user_shell_timeout
+
+
+
+
+
+
+- name: Ensure root login is restricted to system console
+  debug: msg="The file /etc/securetty contains a list of valid terminals that may be logged in directly as root, Please remove every entry except the physically secured terminals."
+  when: user_and_accounts.restricted_root_login_physical_consoles
+
+
+#manually
+- set_fact:
+    manual_patch: "{{manual_patch}} +  ['|5.5| Ensure root login is restricted to system console: The file /etc/securetty contains a list of valid terminals that may be logged in directly as root, Please remove every entry except the physically secured terminals.']" 
+  when: user_and_accounts.restricted_root_login_physical_consoles
+
+
+
+
+
+- name: Ensure access to the su command is restricted
+  lineinfile:
+    path: "/etc/pam.d/su"
+    regexp: 'auth required pam_wheel.so'
+    line: 'auth required pam_wheel.so' 
+  register: change_state
+  become: yes
+  when: user_and_accounts.restricted_su
+
+
+- name:  Ensure access to the su command is restricted
+  debug: msg="Please add the users that may use su to the file /etc/group by adding the users like the following seperated by a comma,  wheel:x:10:root,<user list>"
+  when: user_and_accounts.restricted_su
+
+
+#manually
+- set_fact:
+    manual_patch: "{{manual_patch}} +  ['|5.6| Ensure access to the su command is restricted: Please add the users that may use su to the file /etc/group by adding the users like the following seperated by a comma,  wheel:x:10:root,<user list>']" 
+  when: user_and_accounts.restricted_su
