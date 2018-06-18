@@ -2,6 +2,7 @@
 
 - block:
   - name: Ensure X Window System is not installedp RedHat
+    failed_when: false
     register: change_state
     yum:
       name: xorg-x11*
@@ -11,6 +12,7 @@
 
 
   - name: Ensure X Window System is not installedp Debian
+    failed_when: false
     register: change_state
     apt:
       name: xserver-xorg*
@@ -35,6 +37,7 @@
 
 
   - name: Ensure Avahi Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled avahi-daemon
     register: systemctl_output
     check_mode: no
@@ -42,9 +45,13 @@
     changed_when: no
 
   - name: Disable avahi Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable avahi-daemon"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_avahi_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_avahi_server
+
+
+  - debug: msg="{{change_state}}" 
 
   #done
   - set_fact:
@@ -63,16 +70,23 @@
 
 
   - name: Ensure CUPS is not enabled
+    failed_when: false
     shell: systemctl is-enabled cups
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
 
+  - debug: msg={{systemctl_output}}
+
   - name: Disable CUPS
+    failed_when: false
     register: change_state
     shell: "systemctl disable cups"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_cups
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_cups
+
+  - debug: msg={{change_state}}
+
 
   #done
   - set_fact:
@@ -91,6 +105,7 @@
 
 
   - name: Ensure DHCP Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled dhcpd
     register: systemctl_output
     check_mode: no
@@ -98,9 +113,10 @@
     changed_when: no
 
   - name: Disable DHCP Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable dhcpd"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_dhcp_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_dhcp_server
 
   #done
   - set_fact:
@@ -119,6 +135,7 @@
 
 
   - name: Ensure LDAP Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled slapd
     register: systemctl_output
     check_mode: no
@@ -126,9 +143,10 @@
     changed_when: no
 
   - name: Disable LDAP Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable slapd"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_ldap_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_ldap_server
 
   #done
   - set_fact:
@@ -147,6 +165,7 @@
 
 
   - name: Ensure NFS is not enabled
+    failed_when: false
     shell: systemctl is-enabled nfs
     register: systemctl_output
     check_mode: no
@@ -154,9 +173,10 @@
     changed_when: no
 
   - name: Disable NFS Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable nfs"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_nfs
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_nfs
 
   #done
   - set_fact:
@@ -175,6 +195,7 @@
 
 
   - name: Ensure NFS Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled nfs-server
     register: systemctl_output
     check_mode: no
@@ -182,9 +203,10 @@
     changed_when: no
 
   - name: Disable NFS Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable nfs-server"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_nfs_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_nfs_server
 
   #done
   - set_fact:
@@ -203,6 +225,7 @@
 
 
   - name: Ensure RPC is not enabled
+    failed_when: false
     shell: systemctl is-enabled rpcbind
     register: systemctl_output
     check_mode: no
@@ -210,9 +233,10 @@
     changed_when: no
 
   - name: Disable RPC Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable nfs-rpcbind"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_rpc
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_rpc
 
   #done
   - set_fact:
@@ -231,6 +255,7 @@
 
 
   - name: Ensure DNS server is not enabled
+    failed_when: false
     shell: systemctl is-enabled named
     register: systemctl_output
     check_mode: no
@@ -238,9 +263,10 @@
     changed_when: no
 
   - name: Disable DNS Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable named"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_dns_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_dns_server
 
   #done
   - set_fact:
@@ -259,6 +285,7 @@
 
 
   - name: Ensure FTP server is not enabled
+    failed_when: false
     shell: systemctl is-enabled vsftpd
     register: systemctl_output
     check_mode: no
@@ -266,9 +293,10 @@
     changed_when: no
 
   - name: Disable FTP Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable vsftpd"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_ftp_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_ftp_server
 
   #done
   - set_fact:
@@ -287,16 +315,20 @@
 
 
   - name: Ensure HTTP is not enabled
+    failed_when: false
     shell: systemctl is-enabled httpd
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
 
+  - debug: msg="{{systemctl_output}}"
+
   - name: Disable HTTP Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable httpd"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_http_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_http_server
 
   #done
   - set_fact:
@@ -315,6 +347,7 @@
 
 
   - name: Ensure IMAP and POP3 is not enabled
+    failed_when: false
     shell: systemctl is-enabled dovecot
     register: systemctl_output
     check_mode: no
@@ -322,9 +355,10 @@
     changed_when: no
 
   - name: Disable IMAP and POP3 Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable dovecot"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_imap_pop3
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_imap_pop3
 
   #done
   - set_fact:
@@ -343,6 +377,7 @@
 
 
   - name: Ensure HTTP Proxy is not enabled
+    failed_when: false
     shell: systemctl is-enabled squid 
     register: systemctl_output
     check_mode: no
@@ -350,9 +385,10 @@
     changed_when: no
 
   - name: Disable HTTP Proxy Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable squid"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_http_proxy_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_http_proxy_server
 
   #done
   - set_fact:
@@ -371,6 +407,7 @@
 
 
   - name: Ensure SNMP is not enabled
+    failed_when: false
     shell: systemctl is-enabled snmpd
     register: systemctl_output
     check_mode: no
@@ -378,9 +415,10 @@
     changed_when: no
 
   - name: Disable SNMP Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable snmpd"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_snmp
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_snmp
 
   #done
   - set_fact:
@@ -399,6 +437,7 @@
 
 
   - name: Ensure NIS is not enabled
+    failed_when: false
     shell: systemctl is-enabled ypserv
     register: systemctl_output
     check_mode: no
@@ -406,9 +445,10 @@
     changed_when: no
 
   - name: Disable NIS Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable ypserv"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_nis
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_nis
 
   #done
   - set_fact:
@@ -427,6 +467,7 @@
 
 
   - name: Ensure Samba Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled smb
     register: systemctl_output
     check_mode: no
@@ -434,9 +475,10 @@
     changed_when: no
 
   - name: Disable Samba Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable smb"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_samba_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_samba_server
     
   #done
   - set_fact:
@@ -455,6 +497,7 @@
 
 
   - name: Ensure talk Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled ntalk
     register: systemctl_output
     check_mode: no
@@ -462,9 +505,10 @@
     changed_when: no
 
   - name: Disable talk Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable ntalk"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_talk_server
+    when: not systemctl_output.failed and systemctl_output.stdout != "disabled" and services.disable_talk_server
 
   #done
   - set_fact:
@@ -483,6 +527,7 @@
 
 
   - name: Ensure TELNET Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled telnet.socket
     register: systemctl_output
     check_mode: no
@@ -490,9 +535,10 @@
     changed_when: no
 
   - name: Disable TELNET Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable telnet.socket"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_telnet_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_telnet_server
 
   #done
   - set_fact:
@@ -511,6 +557,7 @@
 
 
   - name: Ensure TFTP Server is not enabled
+    failed_when: false
     shell: systemctl is-enabled tftp.socket
     register: systemctl_output
     check_mode: no
@@ -518,9 +565,10 @@
     changed_when: no
 
   - name: Disable TFTP Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable tftp.socket"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_tftp_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_tftp_server
 
   #done
   - set_fact:
@@ -539,6 +587,7 @@
 
 
   - name: Ensure rsync service is not enabled
+    failed_when: false
     shell: systemctl is-enabled rsyncd
     register: systemctl_output
     check_mode: no
@@ -546,9 +595,10 @@
     changed_when: no
 
   - name: Disable rsync service Server
+    failed_when: false
     register: change_state
     shell: "systemctl disable rsyncd"
-    when: not systemctl_output.failed and systemctl_output.stdout != disabled and services.disable_rsync
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_rsync
 
   #done
   - set_fact:
