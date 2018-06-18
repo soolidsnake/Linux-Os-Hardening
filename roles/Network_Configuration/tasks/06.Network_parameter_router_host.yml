@@ -6,6 +6,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Ignore source routed packets permanently
@@ -58,6 +59,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Ignore ICMP redirects permanently
@@ -110,6 +112,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Ignore secure ICMP redirects permanently
@@ -159,6 +162,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Log suspicious packets permanently
@@ -209,7 +213,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
-
+  become: yes
 
 - name: Ignore broadcast ICMP requests permanently
   register: change_state
@@ -257,6 +261,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Ignore bogus ICMP responses permanently
@@ -307,6 +312,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Enable Reverse Path Filtering permanently
@@ -360,6 +366,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Enable TCP SYN Cookies permanently

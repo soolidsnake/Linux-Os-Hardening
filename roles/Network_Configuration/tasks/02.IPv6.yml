@@ -6,6 +6,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 - name: Disabling IPv6 router advertisements permanently
   register: change_state
@@ -24,6 +25,7 @@
            sysctl -w net.ipv6.conf.default.accept_ra=0 &&
            sysctl -w net.ipv6.route.flush=1"
   when: grep_output.stdout == "net.ipv6.conf.all.accept_ra = 1" and network.ignore_router_advertisements_ipv6
+  become: yes
 
 
 
@@ -54,6 +56,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 - name: Disabling IPv6 redirects permanently
   register: change_state
@@ -72,6 +75,7 @@
            sysctl -w net.ipv6.conf.default.accept_redirects=0 &&
            sysctl -w net.ipv6.route.flush=1"
   when: grep_output.stdout == "net.ipv6.conf.all.accept_redirects = 1" and network.ignore_packet_redirect_ipv6
+  become: yes
 
 
 

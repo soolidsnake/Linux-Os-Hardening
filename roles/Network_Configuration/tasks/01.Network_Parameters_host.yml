@@ -6,6 +6,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 
 - name: Disabling IP forwarding permanently
@@ -56,6 +57,7 @@
   check_mode: no
   ignore_errors: yes
   changed_when: no
+  become: yes
 
 - name: Disabling packet redirect sending permanently
   lineinfile:
