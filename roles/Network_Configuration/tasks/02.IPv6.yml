@@ -1,5 +1,7 @@
 ---
 
+# 3.3.1 ===============================================================================================================
+
 - name: Ensure IPv6 router advertisements are not accepted
   shell: "sysctl net.ipv6.conf.all.accept_ra"
   register: grep_output
@@ -46,9 +48,7 @@
 
 
 
-
-
-
+# 3.3.2 ===============================================================================================================
 
 - name: Ensure IPv6 redirects are not accepted
   shell: "sysctl net.ipv6.conf.all.accept_redirects"
@@ -95,9 +95,13 @@
   when: not network.ignore_packet_redirect_ipv6
 
 
+# 3.3.3 ===============================================================================================================
 
-
-
+- name: Read /etc/default/grub file content
+  shell: cat /etc/default/grub
+  register: grub_cfg
+  changed_when: no
+  become: yes
 
 - name: Ensure IPv6 is disabled
   register: change_state
@@ -105,10 +109,12 @@
     path: "/etc/default/grub"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
+    backrefs: yes
   with_items:
-    - { regexp: 'GRUB_CMDLINE_LINUX',  line: 'GRUB_CMDLINE_LINUX="ipv6.disable=1"' }
+    - { regexp: "(GRUB_CMDLINE_LINUX.+)([\"'])", line: '\1 ipv6.disable=1\2 ' }
   become: yes
-  when: network.deactivate_ipv6
+  changed_when: false
+  when: network.deactivate_ipv6 and grub_cfg.stdout is not search("GRUB_CMDLINE_LINUX.+ipv6.disable=1")
 
 - name: update grub
   shell: "update-grub"

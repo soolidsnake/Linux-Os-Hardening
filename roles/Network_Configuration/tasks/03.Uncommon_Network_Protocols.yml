@@ -1,6 +1,8 @@
 ---
 # create files
 
+# 3.5.1 ==============================================================================================================
+
 - stat: path=/etc/modprobe.d/CIS.conf
   register: p
 
@@ -34,6 +36,7 @@
   when: not network.disable_dccp
 
 
+# 3.5.2 ==============================================================================================================
 
 - name: Ensure SCTP is disabled
   register: change_state
@@ -62,6 +65,7 @@
   when: not network.disable_sctp
 
 
+# 3.5.3 ===============================================================================================================
 
 - name: Ensure RDS is disabled
   register: change_state
@@ -90,6 +94,7 @@
   when: not network.disable_rds
 
 
+# 3.5.4 ===============================================================================================================
 
 - name: Ensure TIPC is disabled
   register: change_state

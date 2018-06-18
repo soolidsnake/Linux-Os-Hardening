@@ -58,9 +58,9 @@
     shell: "iptables-save > /etc/iptables/rules.v4"
     when: network.configure_iptables and ansible_os_family=='Debian'
 
-  - name: saving rules v6
-    shell: "iptables-save > /etc/iptables/rules.v6"
-    when: network.configure_iptables and ansible_os_family=='Debian'
+  # - name: saving rules v6
+  #   shell: "iptables-save > /etc/iptables/rules.v6"
+  #   when: network.configure_iptables and ansible_os_family=='Debian'
 
   - name: saving rules
     shell: "systemctl disable firewalld"
