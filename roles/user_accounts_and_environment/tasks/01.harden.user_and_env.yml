@@ -1,5 +1,9 @@
 ---
 
+- name: get passwd content
+  shell: "cat /etc/passwd"
+  register: passwd_content
+
 - name: Ensure password expiration is 365 days or less
   lineinfile:
     path: "/etc/login.defs"
@@ -8,6 +12,7 @@
   register: change_state
   become: yes
   when: user_and_accounts.passwd_expiration
+
 
 - name:  Ensure password expiration is 365 days or less
   shell: chage --maxdays 90 {{item.split(':')[0]}}
@@ -32,7 +37,9 @@
   when: not user_and_accounts.passwd_expiration
 
 
-
+- name: get passwd content
+  shell: "cat /etc/passwd"
+  register: passwd_content
 
 
 - name: Ensure minimum days between password changes is 7 or more
@@ -70,7 +77,9 @@
 
 
 
-
+- name: get passwd content
+  shell: "cat /etc/passwd"
+  register: passwd_content
 
 
 - name: Ensure password expiration warning days is 7 or more
@@ -107,7 +116,9 @@
 
 
 
-
+- name: get passwd content
+  shell: "cat /etc/passwd"
+  register: passwd_content
 
 
 - name: Check inactive password lock is 30 days or less
@@ -122,9 +133,7 @@
   when:  '"INACTIVE=30" not in cmd_output.stdout and user_and_accounts.inactive_account_lock'
 
 
-- name: get passwd content
-  shell: "cat /etc/passwd"
-  register: passwd_content
+
 
 - name: Ensure inactive password lock is 30 days or less
   shell: chage --inactive 30 {{item.split(':')[0]}}
@@ -248,7 +257,7 @@
 #already done
 - set_fact:
     already_done_patch: "{{already_done_patch}} + ['|5.4.5| Ensure default user shell timeout is 900 seconds or less']" 
-  when: change_state.changed and user_and_accounts.user_shell_timeout
+  when: not change_state.changed and user_and_accounts.user_shell_timeout
 
 #not done
 - set_fact:
