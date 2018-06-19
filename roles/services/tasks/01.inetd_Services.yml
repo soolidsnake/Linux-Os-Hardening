@@ -8,8 +8,8 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
-  
 
   - name: Disable chargen services
     register: change_state
@@ -39,6 +39,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable daytime services
     register: change_state
@@ -68,6 +69,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable discard services
     register: change_state
@@ -97,6 +99,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable echo services
     register: change_state
@@ -126,6 +129,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable time services
     register: change_state
@@ -157,6 +161,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable tftp services
     register: change_state
@@ -185,12 +190,14 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
   
+  - debug: var={{systemctl_output}}
 
   - name: Disable xinetd services
     register: change_state
     shell: "systemctl disable xinetd"
-    when: not systemctl_output.failed and systemctl_output.stdout != "disabled" and services.disable_xinetd_service
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_xinetd_service
     
   - debug : msg={{change_state}}
 
@@ -223,6 +230,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable chargen services
     register: change_state
@@ -252,6 +260,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable daytime services
     register: change_state
@@ -281,6 +290,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable discard services
     register: change_state
@@ -310,6 +320,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable echo services
     register: change_state
@@ -339,6 +350,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable time services
     register: change_state
@@ -368,6 +380,7 @@
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
 
   - name: Disable tftp services
     register: change_state
@@ -390,18 +403,25 @@
     when: not services.disable_tftp_service
 
 
+
   - name: check if xinetd services are not enabled
     shell: systemctl is-enabled xinetdt
     register: systemctl_output
     check_mode: no
     ignore_errors: yes
     changed_when: no
+    failed_when: false
+
+
+
 
 
   - name: Disable xinetd services
     register: change_state
     shell: "systemctl disable xinetd"
-    when: not systemctl_output.failed and systemctl_output.stdout != "disabled" and services.disable_xinetd_service
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_xinetd_service
+
+
 
   #done
   - set_fact:

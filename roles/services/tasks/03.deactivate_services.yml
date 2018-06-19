@@ -508,7 +508,7 @@
     failed_when: false
     register: change_state
     shell: "systemctl disable ntalk"
-    when: not systemctl_output.failed and systemctl_output.stdout != "disabled" and services.disable_talk_server
+    when: systemctl_output.rc == 0 and systemctl_output.stdout != "disabled" and services.disable_talk_server
 
   #done
   - set_fact:

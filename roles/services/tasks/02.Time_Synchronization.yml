@@ -6,13 +6,9 @@
       name: ntp
       update_cache: yes
 
-  - name: Ensure time synchronization is in use install chrony
-    yum:
-      name: chrony
-      update_cache: yes
     
   become: yes
-  when: ansible_os_family=='RedHat'
+  when: ansible_os_family=='RedHat' and services.configure_ntp
 
 
 
@@ -22,13 +18,9 @@
       name: ntp
       update_cache: yes
 
-  - name: Ensure time synchronization is in use install chrony
-    apt:
-      name: chrony
-      update_cache: yes
     
   become: yes
-  when: ansible_os_family=='Debian'
+  when: ansible_os_family=='Debian' and services.configure_ntp
 
 
 
@@ -94,15 +86,6 @@
 
 
 
-
-- debug: msg="Please configure a server for chrony by running the following command manually $ server <remote-server>"
-  when: services.configure_chrony
-
-
-#manually
-- set_fact:
-    manual_patch: "{{manual_patch}} +  ['|2.2.1.3| Ensure chrony is configured: Please configure a server by running the following command manually server <remote-server>']" 
-  when: services.configure_chrony
 
 
 

@@ -2,7 +2,7 @@
 
 - block: 
   - name: Ensure ypbind is not installed
-    register: change_state
+    register: change_state_debian
     apt:
       name: ypbind
       state: absent
@@ -10,7 +10,7 @@
 
 
   - name: Ensure ypbind is not installed
-    register: change_state
+    register: change_state_redhat
     yum:
       name: ypbind
       state: absent
@@ -20,12 +20,12 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|2.3.1| Ensure ypbind is not installed']" 
-    when: change_state.changed and services.uninstall_ypbind
+    when: change_state_debian.changed and change_state_redhat.changed and services.uninstall_ypbind
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|2.3.1| Ensure ypbind is not installed']"
-    when: not change_state.changed and services.uninstall_ypbind
+    when: not change_state_debian.changed and not change_state_redhat.changed and services.uninstall_ypbind
 
   #not done
   - set_fact:
@@ -39,14 +39,14 @@
 
 
   - name: Ensure rsh is not installed
-    register: change_state
+    register: change_state_debian
     apt:
       name: rsh
       state: absent
     when: services.uninstall_rsh and ansible_os_family=='Debian'
 
   - name: Ensure rsh is not installed
-    register: change_state
+    register: change_state_redhat
     yum:
       name: rsh
       state: absent
@@ -56,12 +56,12 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|2.3.2| Ensure rsh is not installed']" 
-    when: change_state.changed and services.uninstall_rsh
+    when: change_state_debian.changed and change_state_redhat.changed and services.uninstall_rsh
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|2.3.2| Ensure rsh is not installed']"
-    when: not change_state.changed and services.uninstall_rsh
+    when: not change_state_debian.changed and not change_state_redhat.changed and services.uninstall_rsh
 
   #not done
   - set_fact:
@@ -74,14 +74,14 @@
 
 
   - name: Ensure talk is not installed
-    register: change_state
+    register: change_state_debian
     apt:
       name: talk
       state: absent
     when: services.uninstall_talk and ansible_os_family=='Debian'
 
   - name: Ensure talk is not installed
-    register: change_state
+    register: change_state_redhat
     yum:
       name: talk
       state: absent
@@ -91,12 +91,12 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|2.3.3| Ensure talk is not installed']" 
-    when: change_state.changed and services.uninstall_talk
+    when: change_state_debian.changed and change_state_redhat.changed and services.uninstall_talk
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|2.3.3| Ensure talk is not installed']"
-    when: not change_state.changed and services.uninstall_talk
+    when: not change_state_debian.changed and not change_state_redhat.changed and services.uninstall_talk
 
   #not done
   - set_fact:
@@ -109,14 +109,14 @@
 
 
   - name: Ensure telnet is not installed
-    register: change_state
+    register: change_state_debian
     apt:
       name: telnet
       state: absent
     when: services.uninstall_telnet and ansible_os_family=='Debian'
 
   - name: Ensure telnet is not installed
-    register: change_state
+    register: change_state_redhat
     yum:
       name: telnet
       state: absent
@@ -126,12 +126,12 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|2.3.4| Ensure telnet is not installed']" 
-    when: change_state.changed and services.uninstall_telnet
+    when: change_state_debian.changed and change_state_redhat.changed and services.uninstall_telnet
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|2.3.4| Ensure telnet is not installed']"
-    when: not change_state.changed and services.uninstall_telnet
+    when: not change_state_debian.changed and not change_state_redhat.changed and services.uninstall_telnet
 
   #not done
   - set_fact:
@@ -143,14 +143,14 @@
 
 
   - name: Ensure openldap-clients is not installed
-    register: change_state
+    register: change_state_debian
     apt:
       name: openldap-clients
       state: absent
     when: services.uninstall_openldap_clients and ansible_os_family=='Debian'
 
   - name: Ensure openldap-clients is not installed
-    register: change_state
+    register: change_state_redhat
     yum:
       name: openldap-clients
       state: absent
@@ -160,12 +160,12 @@
   #done
   - set_fact:
       done_patch: "{{done_patch}} + ['|2.3.5| Ensure openldap-clients is not installed']" 
-    when: change_state.changed and services.uninstall_openldap_clients
+    when: change_state_debian.changed and change_state_redhat.changed and services.uninstall_openldap_clients
 
   #already done
   - set_fact:
       already_done_patch: "{{already_done_patch}} + ['|2.3.5| Ensure openldap-clients is not installed']"
-    when: not change_state.changed and services.uninstall_openldap_clients
+    when: not change_state_debian.changed and not change_state_redhat.changed and services.uninstall_openldap_clients
 
   #not done
   - set_fact:
